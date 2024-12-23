@@ -1,0 +1,26 @@
+spring:
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+      settings:
+        web-admin-password: 123
+
+  datasource:
+    driver-class-name: org.h2.Driver
+    url: jdbc:h2:~/commu
+    username: test
+    password:
+  jpa:
+    show-sql: true
+    hibernate:
+      ddl-auto: create
+
+logging:
+  level:
+    com.deguru: trace
+
+
+jwt:
+  public:
+    key: 'cb0e1849cf0c523bd51e73982a34fecdf660c9dcffde6989b4ff4e1a96aa3988'
