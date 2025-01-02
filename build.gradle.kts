@@ -4,7 +4,6 @@ plugins {
 	war
 	id("org.springframework.boot") version "3.4.0"
 	id("io.spring.dependency-management") version "1.1.6"
-	kotlin("plugin.jpa") version "1.9.25"
 }
 
 group = "com.deguru"
@@ -27,7 +26,6 @@ repositories {
 }
 
 dependencies {
-	implementation("org.springframework.boot:spring-boot-starter-data-jpa")
 	implementation("org.springframework.boot:spring-boot-starter-security")
 	implementation("org.springframework.boot:spring-boot-starter-web")
 	implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
@@ -44,6 +42,10 @@ dependencies {
 	testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 // https://mvnrepository.com/artifact/com.nimbusds/nimbus-jose-jwt
 	implementation("com.nimbusds:nimbus-jose-jwt:9.47")
+// https://mvnrepository.com/artifact/org.jetbrains.exposed/exposed-core
+	implementation("org.jetbrains.exposed:exposed-core:0.57.0")
+// https://mvnrepository.com/artifact/org.jetbrains.exposed/exposed-jdbc
+	runtimeOnly("org.jetbrains.exposed:exposed-jdbc:0.57.0")
 
 
 
@@ -56,9 +58,6 @@ kotlin {
 }
 
 allOpen {
-	annotation("jakarta.persistence.Entity")
-	annotation("jakarta.persistence.MappedSuperclass")
-	annotation("jakarta.persistence.Embeddable")
 }
 
 tasks.withType<Test> {

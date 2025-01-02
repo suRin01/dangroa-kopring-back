@@ -14,9 +14,9 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication
 import org.springframework.security.core.GrantedAuthority
 import org.springframework.security.core.authority.SimpleGrantedAuthority
+import org.springframework.security.core.userdetails.User
 import org.springframework.stereotype.Component
 import java.util.*
-import java.util.stream.Collectors
 
 
 @Component
@@ -93,7 +93,10 @@ class JwtService {
 
 
         // 권한 정보를 이용해서 User 객체를 만듬
-        val principal: User = User(claims.getSubject(), "", authorities)
+        val principal: User = User("username", "", authorities)
+
+
+        //mutableListOf<GrantedAuthority>(SimpleGrantedAuthority("ROLE_USER"))
 
         return UsernamePasswordAuthenticationToken(principal, token, authorities)
     }

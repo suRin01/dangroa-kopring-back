@@ -1,17 +1,19 @@
 package com.deguru.dangroa.security
 
-import com.deguru.dangroa.user.dto.UserDTO
+import com.deguru.dangroa.dtos.UserDTO
+import com.deguru.dangroa.repositories.UserRepository
 import jakarta.servlet.FilterChain
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
 import logger
-import org.springframework.security.core.context.SecurityContextHolder
+import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
+import org.jetbrains.exposed.sql.selectAll
 import org.springframework.stereotype.Component
 import org.springframework.web.filter.OncePerRequestFilter
 import java.util.*
 
 @Component
-class JwtAuthenticationFilter(val jwtUtils: JwtService) : OncePerRequestFilter()  {
+class JwtAuthenticationFilter(val jwtUtils: JwtService, val userRepository: UserRepository) : OncePerRequestFilter()  {
     val log = logger();
     fun tokenResolver (request: HttpServletRequest):String? {
         val tokenPrefix = "Bearer ";
@@ -31,7 +33,7 @@ class JwtAuthenticationFilter(val jwtUtils: JwtService) : OncePerRequestFilter()
         val logger = logger();
 
         val token = tokenResolver(request);
-        logger.debug("token: $token");
+        logger.debug("token: ${token.toString()}");
         if(Objects.isNull(token)){
             logger.debug("skip decoding!");
             filterChain.doFilter(request, response);
@@ -41,20 +43,15 @@ class JwtAuthenticationFilter(val jwtUtils: JwtService) : OncePerRequestFilter()
             val userKey = claimsSet.getClaim("userKey");
 
             //get user info
-            val userData = UserDTO.User(
-                userIndex = 1,
-                userName = "user1 nickname",
-                name = "user1 name",
-                id = "user1",
-                email = "",
-                password = "123",
-                description = null,
-            )
+
+            val userData = userRepository.findUserById(claimsSet.claims.get("id").toString());
+            log.debug("userData: {}", userData);
             //set user credential
-            SecurityContextHolder.getContext().setAuthentication()
+            //SecurityContextHolder.getContext().setAuthentication()
 
         }catch (e:Exception){
             // ㅇ???
+            e.printStackTrace();
             log.debug("jwt decode error");
         }
 
