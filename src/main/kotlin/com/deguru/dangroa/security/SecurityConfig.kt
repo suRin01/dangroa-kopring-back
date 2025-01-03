@@ -6,12 +6,9 @@ import org.springframework.core.Ordered
 import org.springframework.core.annotation.Order
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
-import org.springframework.security.core.userdetails.User
-import org.springframework.security.core.userdetails.UserDetailsService
-import org.springframework.security.provisioning.InMemoryUserDetailsManager
-import org.springframework.security.web.SecurityFilterChain
 import org.springframework.security.config.annotation.web.invoke
 import org.springframework.security.config.http.SessionCreationPolicy
+import org.springframework.security.web.SecurityFilterChain
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter
 import org.springframework.web.cors.CorsConfiguration
 import org.springframework.web.cors.CorsConfigurationSource
@@ -36,11 +33,11 @@ class SecurityConfig(
             authorizeHttpRequests {
                 authorize("/css/**", permitAll)
                 authorize("/auth/login", permitAll)
-                authorize("/user/**", hasAuthority("ROLE_USER"))
-                authorize("/admin/**", hasAuthority("ROLE_ADMIN"))
+                authorize("/user/**", hasAuthority("ROLE_manager"))
+                authorize("/admin/**", hasAuthority("ROLE_admin"))
 
             }
-            addFilterAfter<UsernamePasswordAuthenticationFilter>(jwtAuthenticationFilter);
+            addFilterAfter<UsernamePasswordAuthenticationFilter>(jwtAuthenticationFilter)
             exceptionHandling {
                 authenticationEntryPoint = jwtAuthenticationEntrypoint
                 accessDeniedHandler = customAccessDeniedHandler
@@ -60,17 +57,6 @@ class SecurityConfig(
         return source
     }
 
-    @Bean
-    fun users(): UserDetailsService {
-        // @formatter:off
-        return InMemoryUserDetailsManager(
-            User.withUsername("user")
-                .password("{noop}password")
-                .authorities("app")
-                .build()
-        )
-        // @formatter:on
-    }
 
 
 

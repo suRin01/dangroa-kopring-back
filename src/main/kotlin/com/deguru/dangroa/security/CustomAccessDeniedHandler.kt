@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component
 
 @Component
 class CustomAccessDeniedHandler: AccessDeniedHandler {
-    val logger = logger();
+    val logger = logger()
 
     override fun handle(
         request: HttpServletRequest?,
@@ -17,8 +17,8 @@ class CustomAccessDeniedHandler: AccessDeniedHandler {
         accessDeniedException: AccessDeniedException?
     ) {
 
-        logger.error("access denied.");
-        response?.sendError(HttpServletResponse.SC_FORBIDDEN);
+        logger.error("access denied.")
+        response?.sendError(HttpServletResponse.SC_FORBIDDEN)
 
     }
 

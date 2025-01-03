@@ -1,6 +1,8 @@
 package com.deguru.dangroa
 
-import com.deguru.dangroa.dtos.UserDTO
+import com.deguru.dangroa.dtos.HasRole
+import com.deguru.dangroa.dtos.Role
+import com.deguru.dangroa.dtos.User
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.springframework.boot.autoconfigure.SpringBootApplication
@@ -15,9 +17,27 @@ fun main(args: Array<String>) {
 	Database.connect("jdbc:h2:mem:test;DB_CLOSE_DELAY=-1;DATABASE_TO_UPPER=false;", driver = "org.h2.Driver")
 	transaction {
 		addLogger(StdOutSqlLogger)
-		SchemaUtils.create(UserDTO.Users)
+		SchemaUtils.drop(User.UsersTable, Role.RolesTable, HasRole.HasRolesTable)
+		SchemaUtils.create(User.UsersTable, Role.RolesTable, HasRole.HasRolesTable)
 
-		val taskId = UserDTO.Users.insert {
+		val adminRoleIdx = Role.RolesTable.insert {
+			it[roleName] = "Admin"
+			it[roleCode] = "A"
+			it[isEnabled] = true
+			it[isDeleted] = false
+			it[description] = "test role 1"
+
+		} get Role.RolesTable.roleIndex
+
+		val managerRoleIdx = Role.RolesTable.insert {
+			it[roleName] = "manager"
+			it[roleCode] = "M"
+			it[isEnabled] = true
+			it[isDeleted] = false
+			it[description] = "test role 2"
+		} get Role.RolesTable.roleIndex
+
+		val user1Id = User.UsersTable.insert {
 			it[id] = "user1"
 			it[userName] = "user1 nickname"
 			it[name] = "user1 name"
@@ -26,9 +46,9 @@ fun main(args: Array<String>) {
 			it[description] = "12312313123123"
 			it[userStatus] = 0
 			it[enabled] = true
-		} get UserDTO.Users.id
+		} get User.UsersTable.userIndex
 
-		val secondTaskId = UserDTO.Users.insert {
+		val user2Id = User.UsersTable.insert {
 			it[id] = "user2"
 			it[description] = "Read the first two chapters of The Hobbit"
 			it[userName] = "user2 nickname"
@@ -38,12 +58,29 @@ fun main(args: Array<String>) {
 			it[description] = "12312313123123"
 			it[userStatus] = 0
 			it[enabled] = true
-		} get UserDTO.Users.id
+		} get User.UsersTable.userIndex
 
-		println("Created new tasks with ids $taskId and $secondTaskId.")
 
-		UserDTO.Users.select(UserDTO.Users.id.count(), UserDTO.Users.enabled).groupBy(UserDTO.Users.enabled).forEach {
-			println("${it[UserDTO.Users.enabled]}: ${it[UserDTO.Users.id.count()]} ")
+		//relation between user and role
+		HasRole.HasRolesTable.insert {
+			it[roleIndex] = adminRoleIdx
+			it[userIndex] = user1Id
 		}
+
+		HasRole.HasRolesTable.insert {
+			it[roleIndex] = managerRoleIdx
+			it[userIndex] = user1Id
+		}
+
+
+		HasRole.HasRolesTable.insert {
+			it[roleIndex] = managerRoleIdx
+			it[userIndex] = user2Id
+		}
+
+
+
+
+
 	}
 }

@@ -21,27 +21,27 @@ import java.util.*
 
 @Component
 class JwtService {
-    val logger = logger();
+    val logger = logger()
 
     @Value("\${jwt.public.key}")
-    private lateinit var key: String;
+    private lateinit var key: String
 
-    private var sharedSecret: ByteArray? = null;
-    private var signer: JWSSigner? = null;
+    private var sharedSecret: ByteArray? = null
+    private var signer: JWSSigner? = null
 
     private fun getSharedSecret(): ByteArray{
         if(Objects.isNull(this.sharedSecret)){
-            this.sharedSecret = key!!.toByteArray();
+            this.sharedSecret = key!!.toByteArray()
         }
-        return this.sharedSecret as ByteArray;
+        return this.sharedSecret as ByteArray
     }
 
     private fun getSigner(): JWSSigner{
         if(Objects.isNull(this.signer)){
-            val sharedSecret = key!!.toByteArray();
-            this.signer = MACSigner(sharedSecret);
+            val sharedSecret = key!!.toByteArray()
+            this.signer = MACSigner(sharedSecret)
         }
-        return this.signer as JWSSigner;
+        return this.signer as JWSSigner
     }
 
     private fun testClaimsSet(): JWTClaimsSet? {
@@ -51,41 +51,40 @@ class JwtService {
             .issuer("test!")
             .audience("testUserId")
             .expirationTime(Date(Date().time + 2 * 60 * 60 * 1000 )) //2 hour
-            .build();
+            .build()
 
     }
 
     fun encodeJwt(claimsSet: JWTClaimsSet ): String{
-        val signedJWT = SignedJWT(JWSHeader(JWSAlgorithm.HS256), claimsSet);
-        signedJWT.sign(getSigner());
+        val signedJWT = SignedJWT(JWSHeader(JWSAlgorithm.HS256), claimsSet)
+        signedJWT.sign(getSigner())
         val s = signedJWT.serialize()
 
-        return s;
+        return s
     }
 
 
     fun decodeJwt(jwtString: String): JWTClaimsSet {
-        val signedJWT = SignedJWT.parse(jwtString);
-        val verifier: JWSVerifier = MACVerifier(getSharedSecret());
-        val isVerified = signedJWT.verify(verifier);
+        val signedJWT = SignedJWT.parse(jwtString)
+        val verifier: JWSVerifier = MACVerifier(getSharedSecret())
+        val isVerified = signedJWT.verify(verifier)
 
-        logger.debug("isVerified = $isVerified");
-        logger.debug("header = {}", signedJWT.header);
-        logger.debug("testId = {}", signedJWT.getJWTClaimsSet().getClaim("testId"));
+        logger.debug("isVerified = $isVerified")
+        logger.debug("header = {}", signedJWT.header)
 
 
-        return signedJWT.getJWTClaimsSet();
+        return signedJWT.getJWTClaimsSet()
     }
 
     fun getAuthentication(token: String): Authentication? {
         // 토큰을 이용해서 Claims 만듬
 
-        val claims: JWTClaimsSet = decodeJwt(token);
+        val claims: JWTClaimsSet = decodeJwt(token)
 
         // Claims 에 들어있는 권한들을 가져옴
-        val rolesString = claims.getClaim("roles") as String;
+        val rolesString = claims.getClaim("roles") as String
         if(Objects.isNull(rolesString)){
-            return null;
+            return null
         }
 
 
