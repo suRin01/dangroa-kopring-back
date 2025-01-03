@@ -7,7 +7,7 @@ import org.springframework.security.access.AccessDeniedException
 import org.springframework.security.web.access.AccessDeniedHandler
 import org.springframework.stereotype.Component
 
-@Component
+
 class CustomAccessDeniedHandler: AccessDeniedHandler {
     val logger = logger()
 
@@ -16,10 +16,12 @@ class CustomAccessDeniedHandler: AccessDeniedHandler {
         response: HttpServletResponse?,
         accessDeniedException: AccessDeniedException?
     ) {
-
-        logger.error("access denied.")
+        logger.error("CustomAccessDeniedHandler class called")
+        logger.error("unauthorized")
+        logger.error("unauthorizedException: $accessDeniedException")
         response?.sendError(HttpServletResponse.SC_FORBIDDEN)
-
+        logger.debug("CustomAccessDeniedHandler call end");
+        return
     }
 
 }

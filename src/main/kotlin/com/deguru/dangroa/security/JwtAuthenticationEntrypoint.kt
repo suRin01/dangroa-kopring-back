@@ -7,7 +7,7 @@ import org.springframework.security.core.AuthenticationException
 import org.springframework.security.web.AuthenticationEntryPoint
 import org.springframework.stereotype.Component
 
-@Component
+
 class JwtAuthenticationEntrypoint: AuthenticationEntryPoint {
     val logger = logger()
     override fun commence(
@@ -15,9 +15,11 @@ class JwtAuthenticationEntrypoint: AuthenticationEntryPoint {
         response: HttpServletResponse?,
         authException: AuthenticationException?
     ) {
-        logger.debug("JwtAuthenticationEntrypoint class called")
+        logger.error("JwtAuthenticationEntrypoint class called")
+        logger.error("unauthenticated")
+        logger.error("unauthenticatedException: $authException")
         response?.sendError(HttpServletResponse.SC_UNAUTHORIZED)
-
+        return
     }
 
 }

@@ -37,6 +37,15 @@ fun main(args: Array<String>) {
 			it[description] = "test role 2"
 		} get Role.RolesTable.roleIndex
 
+
+		val userRoleIdx = Role.RolesTable.insert {
+			it[roleName] = "user"
+			it[roleCode] = "U"
+			it[isEnabled] = true
+			it[isDeleted] = false
+			it[description] = "test role 3"
+		} get Role.RolesTable.roleIndex
+
 		val user1Id = User.UsersTable.insert {
 			it[id] = "user1"
 			it[userName] = "user1 nickname"
@@ -61,6 +70,18 @@ fun main(args: Array<String>) {
 		} get User.UsersTable.userIndex
 
 
+		val user3Id = User.UsersTable.insert {
+			it[id] = "user3"
+			it[description] = "Read the first two chapters of The Hobbit"
+			it[userName] = "user3 nickname"
+			it[name] = "user3 name"
+			it[email] = "12312313123123"
+			it[password] = "123"
+			it[description] = "12312313123123"
+			it[userStatus] = 0
+			it[enabled] = true
+		} get User.UsersTable.userIndex
+
 		//relation between user and role
 		HasRole.HasRolesTable.insert {
 			it[roleIndex] = adminRoleIdx
@@ -72,14 +93,25 @@ fun main(args: Array<String>) {
 			it[userIndex] = user1Id
 		}
 
+		HasRole.HasRolesTable.insert {
+			it[roleIndex] = userRoleIdx
+			it[userIndex] = user1Id
+		}
 
 		HasRole.HasRolesTable.insert {
 			it[roleIndex] = managerRoleIdx
 			it[userIndex] = user2Id
 		}
 
+		HasRole.HasRolesTable.insert {
+			it[roleIndex] = userRoleIdx
+			it[userIndex] = user2Id
+		}
 
-
+		HasRole.HasRolesTable.insert {
+			it[roleIndex] = userRoleIdx
+			it[userIndex] = user3Id
+		}
 
 
 	}

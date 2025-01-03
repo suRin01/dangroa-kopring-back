@@ -19,12 +19,12 @@ import org.springframework.stereotype.Component
 import java.util.*
 
 
-@Component
-class JwtService {
-    val logger = logger()
 
-    @Value("\${jwt.public.key}")
-    private lateinit var key: String
+class JwtService {
+    private val log = logger()
+
+
+    private var key: String
 
     private var sharedSecret: ByteArray? = null
     private var signer: JWSSigner? = null
