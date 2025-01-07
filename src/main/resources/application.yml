@@ -1,8 +1,13 @@
 logging:
   level:
     com.deguru: trace
-
-
 jwt:
-  public:
-    key: 'cb0e1849cf0c523bd51e73982a34fecdf660c9dcffde6989b4ff4e1a96aa3988'
+  key: ${password}
+spring:
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: ${postgresql.url}
+    username: ${postgresql.username}
+    password: ${postgresql.password}
+    hikari:
+      maximum-pool-size: 20

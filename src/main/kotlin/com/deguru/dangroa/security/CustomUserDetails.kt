@@ -9,7 +9,7 @@ class CustomUserDetails(userInfo: User.UsersTable, authList: MutableCollection<o
     private val id: String = userInfo.id.toString()
     private val password: String = userInfo.password.toString()
     private val name: String = userInfo.name.toString()
-    private val userName: String = userInfo.userName.toString()
+    private val userName: String = userInfo.name.toString()
     private val userStatus: Column<Long> = userInfo.userStatus
     private val enabled: Column<Boolean> = userInfo.enabled
     private val userInfoAuthList: MutableCollection<out GrantedAuthority> = authList

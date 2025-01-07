@@ -25,12 +25,12 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource
 @Configuration
 @EnableWebSecurity
 class SecurityConfig(
-    var userRepository: UserRepository,
-    var roleRepository: RoleRepository
+    var jwtAuthenticationEntrypoint: JwtAuthenticationEntrypoint,
+    var jwtAuthenticationFilter: JwtAuthenticationFilter,
+    var customAccessDeniedHandler: CustomAccessDeniedHandler
     ) {
     private val log = logger()
-    @Value("\${jwt.public.key}")
-    private lateinit var jwtKey: String
+
     @Bean
     fun filterChain(http: HttpSecurity): SecurityFilterChain {
         log.info("Security config filter chain")
@@ -42,14 +42,15 @@ class SecurityConfig(
             authorizeHttpRequests {
                 authorize("/css/**", permitAll)
                 authorize("/auth/login", permitAll)
+                authorize("/auth/signup", permitAll)
                 authorize("/user/**", hasAuthority("ROLE_manager"))
                 authorize("/admin/**", hasAuthority("ROLE_admin"))
 
             }
-            addFilterAfter<UsernamePasswordAuthenticationFilter>(JwtAuthenticationFilter(userRepository, roleRepository))
+            addFilterAfter<UsernamePasswordAuthenticationFilter>(jwtAuthenticationFilter)
             exceptionHandling {
-                authenticationEntryPoint = JwtAuthenticationEntrypoint()
-                accessDeniedHandler = CustomAccessDeniedHandler()
+                authenticationEntryPoint = jwtAuthenticationEntrypoint
+                accessDeniedHandler = customAccessDeniedHandler
             }
         }
         return http.build()

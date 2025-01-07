@@ -1,22 +1,52 @@
 package com.deguru.dangroa.auth
 
+import com.deguru.dangroa.dtos.Auth
+import com.deguru.dangroa.dtos.User
+import jakarta.servlet.http.Cookie
+import jakarta.servlet.http.HttpServletRequest
+import jakarta.servlet.http.HttpServletResponse
+import jakarta.validation.Valid
 import logger
+import org.springframework.http.HttpStatus
+import org.springframework.http.ResponseEntity
 import org.springframework.security.core.context.SecurityContextHolder
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.validation.BindingResult
+import org.springframework.validation.Errors
+import org.springframework.web.bind.annotation.*
 
 @RestController()
 @RequestMapping("/auth")
-class AuthController {
+class AuthController(
+    val authService: AuthService,
+) {
     val log = logger()
+    @PostMapping("/signup")
+    fun signup(@Valid @RequestBody signupDTO: User.SingUpUserDTO, bindingResult: BindingResult):ResponseEntity<Number> {
+        if(bindingResult.hasErrors()){
+            log.error("Error during signup: {}", bindingResult.fieldErrors)
+            return ResponseEntity(HttpStatus.BAD_REQUEST);
+        }
+        log.debug("signup data: {}", signupDTO.toString())
 
-    @GetMapping("/login")
-    fun login(): String {
-
-        log.debug(SecurityContextHolder.getContext().authentication.isAuthenticated.toString())
-        log.debug(SecurityContextHolder.getContext().authentication.authorities.toString())
-        log.debug(SecurityContextHolder.getContext().authentication.principal.toString())
-        return "login test"
+        return ResponseEntity(HttpStatus.OK);
     }
+
+    @PostMapping("/login")
+    fun login(@RequestBody @Valid user: Auth.LoginDTO): Auth.LoginSuccessDTO {
+
+        return authService.backdoorLogin(user)
+    }
+
+
+    @GetMapping
+    fun logout(request: HttpServletRequest, response: HttpServletResponse) {
+        val nullAccessToken = Cookie("accessToken", null);
+        nullAccessToken.maxAge = 0
+        val nullRefreshToken = Cookie("refreshToken", null);
+        nullRefreshToken.maxAge = 0
+        response.addCookie(nullAccessToken)
+        response.addCookie(nullRefreshToken)
+
+    }
+
 }

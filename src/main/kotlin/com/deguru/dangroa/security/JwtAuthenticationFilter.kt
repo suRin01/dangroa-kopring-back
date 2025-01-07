@@ -9,17 +9,19 @@ import logger
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.GrantedAuthority
 import org.springframework.security.core.authority.SimpleGrantedAuthority
+import org.springframework.security.core.context.SecurityContext
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.stereotype.Component
 import org.springframework.web.filter.OncePerRequestFilter
 import java.util.*
 
+@Component
 class JwtAuthenticationFilter(
     private val userRepository: UserRepository,
     private val roleRepository: RoleRepository,
-    private val jwtKeyString: String) : OncePerRequestFilter()  {
+    private val jwtUtils: JwtService,) : OncePerRequestFilter()  {
     private val log = logger()
-    private val jwtUtils: JwtService = JwtService()
+
 
     private fun tokenResolver (request: HttpServletRequest):String? {
         val tokenPrefix = "Bearer "
@@ -57,12 +59,13 @@ class JwtAuthenticationFilter(
                     authorities.add(SimpleGrantedAuthority("ROLE_${it.roleName}"))
                 }
             //set user credential
+            val context: SecurityContext = SecurityContextHolder.createEmptyContext()
             val authentication = UsernamePasswordAuthenticationToken(userData, null, authorities)
-            SecurityContextHolder.getContext().authentication = authentication
-            log.debug("authentication success")
-            filterChain.doFilter(request, response)
+            context.authentication = authentication
 
-            return
+            SecurityContextHolder.setContext(context)
+            log.debug("is authenticated: ${SecurityContextHolder.getContext().authentication.isAuthenticated}")
+            log.debug("authentication success")
         }catch (e:Exception){
             SecurityContextHolder.getContext().authentication = null
             log.debug("jwt decode error")

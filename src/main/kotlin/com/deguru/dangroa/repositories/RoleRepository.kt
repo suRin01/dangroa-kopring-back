@@ -11,7 +11,6 @@ import org.springframework.stereotype.Component
 class RoleRepository {
 
     fun findUserRoles(userIndex: Long): List<Role.RoleDTO> {
-        Database.connect("jdbc:h2:mem:test;DB_CLOSE_DELAY=-1;DATABASE_TO_UPPER=false;", driver = "org.h2.Driver")
         val queryResult = transaction {
             (HasRole.HasRolesTable innerJoin Role.RolesTable)
                 .selectAll()

@@ -14,6 +14,11 @@ class UserController(val userService: UserService) {
 
         return userService.getAllUser()
     }
+
+    @GetMapping("/test")
+    fun insertTestUser(): Long {
+        return userService.insertTestUser();
+    }
 }
 
 

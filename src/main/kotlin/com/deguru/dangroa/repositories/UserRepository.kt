@@ -8,7 +8,6 @@ import org.springframework.stereotype.Component
 @Component
 class UserRepository {
     fun findAllUsers(): List<User.UserDTO> {
-        Database.connect("jdbc:h2:mem:test;DB_CLOSE_DELAY=-1;DATABASE_TO_UPPER=false;", driver = "org.h2.Driver")
         val queryResult = transaction {
             addLogger(StdOutSqlLogger)
             User.UsersTable
@@ -22,7 +21,6 @@ class UserRepository {
 
 
     fun findSingleUserById(id: String): User.UserDTO {
-        Database.connect("jdbc:h2:mem:test;DB_CLOSE_DELAY=-1;DATABASE_TO_UPPER=false;", driver = "org.h2.Driver")
         val queryResult = transaction {
             addLogger(StdOutSqlLogger)
             User.UsersTable

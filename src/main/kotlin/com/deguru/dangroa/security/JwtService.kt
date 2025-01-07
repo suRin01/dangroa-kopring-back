@@ -20,25 +20,27 @@ import java.util.*
 
 
 
+@Component
 class JwtService {
     private val log = logger()
+    @Value("\${jwt.key}")
+    private lateinit var jwtKeyString: String
 
 
-    private var key: String
 
     private var sharedSecret: ByteArray? = null
     private var signer: JWSSigner? = null
 
     private fun getSharedSecret(): ByteArray{
         if(Objects.isNull(this.sharedSecret)){
-            this.sharedSecret = key!!.toByteArray()
+            this.sharedSecret = jwtKeyString.toByteArray()
         }
         return this.sharedSecret as ByteArray
     }
 
     private fun getSigner(): JWSSigner{
         if(Objects.isNull(this.signer)){
-            val sharedSecret = key!!.toByteArray()
+            val sharedSecret = jwtKeyString.toByteArray()
             this.signer = MACSigner(sharedSecret)
         }
         return this.signer as JWSSigner
@@ -55,7 +57,7 @@ class JwtService {
 
     }
 
-    fun encodeJwt(claimsSet: JWTClaimsSet ): String{
+    fun encodeJwt(claimsSet: JWTClaimsSet): String {
         val signedJWT = SignedJWT(JWSHeader(JWSAlgorithm.HS256), claimsSet)
         signedJWT.sign(getSigner())
         val s = signedJWT.serialize()
@@ -69,11 +71,11 @@ class JwtService {
         val verifier: JWSVerifier = MACVerifier(getSharedSecret())
         val isVerified = signedJWT.verify(verifier)
 
-        logger.debug("isVerified = $isVerified")
-        logger.debug("header = {}", signedJWT.header)
+        log.debug("isVerified = $isVerified")
+        log.debug("header = {}", signedJWT.header)
 
 
-        return signedJWT.getJWTClaimsSet()
+        return signedJWT.jwtClaimsSet
     }
 
     fun getAuthentication(token: String): Authentication? {
