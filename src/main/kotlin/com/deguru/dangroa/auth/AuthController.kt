@@ -9,9 +9,7 @@ import jakarta.validation.Valid
 import logger
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
-import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.validation.BindingResult
-import org.springframework.validation.Errors
 import org.springframework.web.bind.annotation.*
 
 @RestController()
@@ -24,11 +22,11 @@ class AuthController(
     fun signup(@Valid @RequestBody signupDTO: User.SingUpUserDTO, bindingResult: BindingResult):ResponseEntity<Number> {
         if(bindingResult.hasErrors()){
             log.error("Error during signup: {}", bindingResult.fieldErrors)
-            return ResponseEntity(HttpStatus.BAD_REQUEST);
+            return ResponseEntity(HttpStatus.BAD_REQUEST)
         }
         log.debug("signup data: {}", signupDTO.toString())
 
-        return ResponseEntity(HttpStatus.OK);
+        return ResponseEntity(HttpStatus.OK)
     }
 
     @PostMapping("/login")
@@ -40,9 +38,9 @@ class AuthController(
 
     @GetMapping
     fun logout(request: HttpServletRequest, response: HttpServletResponse) {
-        val nullAccessToken = Cookie("accessToken", null);
+        val nullAccessToken = Cookie("accessToken", null)
         nullAccessToken.maxAge = 0
-        val nullRefreshToken = Cookie("refreshToken", null);
+        val nullRefreshToken = Cookie("refreshToken", null)
         nullRefreshToken.maxAge = 0
         response.addCookie(nullAccessToken)
         response.addCookie(nullRefreshToken)

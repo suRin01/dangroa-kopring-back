@@ -50,7 +50,7 @@ class ApiControllerAdvice {
     @ExceptionHandler(AuthenticationException::class)
     fun handleAuthenticationException(exception: AuthenticationException): ResponseEntity<String> {
         log.debug("AuthenticationException")
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(exception.message);
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(exception.message)
     }
 
 

@@ -22,12 +22,8 @@ import java.util.*
 
 @Component
 class JwtService {
-    private val log = logger()
     @Value("\${jwt.key}")
     private lateinit var jwtKeyString: String
-
-
-
     private var sharedSecret: ByteArray? = null
     private var signer: JWSSigner? = null
 
@@ -45,43 +41,28 @@ class JwtService {
         }
         return this.signer as JWSSigner
     }
-
-    private fun testClaimsSet(): JWTClaimsSet? {
-        return JWTClaimsSet.Builder()
-            .claim("testId", "testValue")
-            .claim("jwkId", 1)
-            .issuer("test!")
-            .audience("testUserId")
-            .expirationTime(Date(Date().time + 2 * 60 * 60 * 1000 )) //2 hour
-            .build()
-
-    }
-
     fun encodeJwt(claimsSet: JWTClaimsSet): String {
         val signedJWT = SignedJWT(JWSHeader(JWSAlgorithm.HS256), claimsSet)
         signedJWT.sign(getSigner())
-        val s = signedJWT.serialize()
 
-        return s
+        return signedJWT.serialize()
+    }
+
+    fun isValid(jwtString: String): Boolean{
+        val signedJWT = decodeJwt(jwtString);
+        val verifier: JWSVerifier = MACVerifier(getSharedSecret())
+        return signedJWT.verify(verifier)
     }
 
 
-    fun decodeJwt(jwtString: String): JWTClaimsSet {
-        val signedJWT = SignedJWT.parse(jwtString)
-        val verifier: JWSVerifier = MACVerifier(getSharedSecret())
-        val isVerified = signedJWT.verify(verifier)
-
-        log.debug("isVerified = $isVerified")
-        log.debug("header = {}", signedJWT.header)
-
-
-        return signedJWT.jwtClaimsSet
+    fun decodeJwt(jwtString: String): SignedJWT {
+        return SignedJWT.parse(jwtString)
     }
 
     fun getAuthentication(token: String): Authentication? {
         // 토큰을 이용해서 Claims 만듬
 
-        val claims: JWTClaimsSet = decodeJwt(token)
+        val claims: JWTClaimsSet = decodeJwt(token).jwtClaimsSet
 
         // Claims 에 들어있는 권한들을 가져옴
         val rolesString = claims.getClaim("roles") as String
@@ -94,7 +75,7 @@ class JwtService {
 
 
         // 권한 정보를 이용해서 User 객체를 만듬
-        val principal: User = User("username", "", authorities)
+        val principal = User("username", "", authorities)
 
 
         //mutableListOf<GrantedAuthority>(SimpleGrantedAuthority("ROLE_USER"))

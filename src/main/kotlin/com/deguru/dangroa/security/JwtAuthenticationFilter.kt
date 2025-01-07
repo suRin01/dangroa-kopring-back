@@ -1,7 +1,8 @@
 package com.deguru.dangroa.security
 
-import com.deguru.dangroa.repositories.RoleRepository
-import com.deguru.dangroa.repositories.UserRepository
+import com.deguru.dangroa.auth.JwtData
+import com.deguru.dangroa.auth.RoleService
+import com.deguru.dangroa.user.UserService
 import jakarta.servlet.FilterChain
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
@@ -17,8 +18,8 @@ import java.util.*
 
 @Component
 class JwtAuthenticationFilter(
-    private val userRepository: UserRepository,
-    private val roleRepository: RoleRepository,
+    private val roleService: RoleService,
+    private val userService: UserService,
     private val jwtUtils: JwtService,) : OncePerRequestFilter()  {
     private val log = logger()
 
@@ -44,20 +45,30 @@ class JwtAuthenticationFilter(
         if(Objects.isNull(token)){
             log.debug("skip decoding!")
             filterChain.doFilter(request, response)
-            return;
+            return
         }
         try {
-            val claimsSet = jwtUtils.decodeJwt(token!!)
+            val jwtData = JwtData(token!!)
+            log.debug("token classfying: ${jwtData.toString()}")
+            val decodedJwt = jwtUtils.decodeJwt(token!!);
+
+
+            val claimsSet = jwtUtils.decodeJwt(token!!).jwtClaimsSet
             val userKey = claimsSet.claims.get("id").toString()
 
             //get user info
 
-            val userData = userRepository.findSingleUserById(userKey)
+            val userData = userService.findUserById(userKey)
+            if(userData == null) {
+                filterChain.doFilter(request, response)
+            }
             val authorities = ArrayList<GrantedAuthority>()
-            roleRepository.findUserRoles(userData.userIndex)
-                .forEach() {
-                    authorities.add(SimpleGrantedAuthority("ROLE_${it.roleName}"))
-                }
+            roleService.findUserRoles(userData!!.userIndex).forEach() {
+                authorities.add(SimpleGrantedAuthority("ROLE_${it.roleName}"))
+            }
+
+
+
             //set user credential
             val context: SecurityContext = SecurityContextHolder.createEmptyContext()
             val authentication = UsernamePasswordAuthenticationToken(userData, null, authorities)
@@ -68,6 +79,7 @@ class JwtAuthenticationFilter(
             log.debug("authentication success")
         }catch (e:Exception){
             SecurityContextHolder.getContext().authentication = null
+            e.printStackTrace()
             log.debug("jwt decode error")
         }
 
