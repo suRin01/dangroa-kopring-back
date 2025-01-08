@@ -58,7 +58,7 @@ class SecurityConfig(
                 authorize("/auth/login", permitAll)
                 authorize("/auth/signup", permitAll)
                 authorize("/error", permitAll)
-                authorize("/test/**", permitAll)
+                authorize("/test/userRoleOnly", hasAuthority("ROLE_U"))
                 authorize("/user/**", hasAuthority("ROLE_M"))
                 authorize("/admin/**", hasAuthority("ROLE_A"))
 
