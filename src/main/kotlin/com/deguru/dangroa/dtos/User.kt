@@ -44,12 +44,16 @@ class User {
         val userIndex: Long,
         val id: String,
         val name: String,
-        val password: String){
+        val password: String,
+        val isDeleted: Boolean,
+        val userStatus: Long,){
         constructor(queryRow: ResultRow) : this(
             queryRow[UsersTable.userIndex],
             queryRow[UsersTable.id],
             queryRow[UsersTable.name],
             queryRow[UsersTable.password],
+            queryRow[UsersTable.enabled],
+            queryRow[UsersTable.userStatus],
         )
 
         fun toAccessClaimSet(): JWTClaimsSet {

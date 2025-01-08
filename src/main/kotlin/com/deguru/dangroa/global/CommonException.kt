@@ -16,7 +16,8 @@ enum class CommonExceptionCode(
     val status: HttpStatus,
     val message: String,) {
     DUPLICATE_EMAIL(HttpStatus.BAD_REQUEST, "중복된 이메일입니다. 다시 입력해주세요."),
-    WRONG_CREDENTIAL(HttpStatus.UNAUTHORIZED, "잘못된 ID/PW 입니다.")
+    WRONG_CREDENTIAL(HttpStatus.UNAUTHORIZED, "잘못된 ID/PW 입니다."),
+    JWT_ERROR(HttpStatus.BAD_REQUEST, "잘못된 JWT 입니다."),
 }
 
 class CommonException(val exceptionCode: CommonExceptionCode): RuntimeException()

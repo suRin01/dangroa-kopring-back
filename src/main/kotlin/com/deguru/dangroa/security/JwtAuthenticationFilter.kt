@@ -1,7 +1,8 @@
 package com.deguru.dangroa.security
 
-import com.deguru.dangroa.auth.JwtData
 import com.deguru.dangroa.auth.RoleService
+import com.deguru.dangroa.global.CommonException
+import com.deguru.dangroa.global.CommonExceptionCode
 import com.deguru.dangroa.user.UserService
 import jakarta.servlet.FilterChain
 import jakarta.servlet.http.HttpServletRequest
@@ -43,28 +44,26 @@ class JwtAuthenticationFilter(
         val token = tokenResolver(request)
         log.debug("token: ${token.toString()}")
         if(Objects.isNull(token)){
-            log.debug("skip decoding!")
             filterChain.doFilter(request, response)
             return
         }
         try {
-            val jwtData = JwtData(token!!)
-            log.debug("token classfying: ${jwtData.toString()}")
             val decodedJwt = jwtUtils.decodeJwt(token!!);
+            if(jwtUtils.isValid(decodedJwt)){
+                throw CommonException(CommonExceptionCode.JWT_ERROR)
+            }
 
-
-            val claimsSet = jwtUtils.decodeJwt(token!!).jwtClaimsSet
-            val userKey = claimsSet.claims.get("id").toString()
+            val claimsSet = decodedJwt.jwtClaimsSet
+            val userKey = claimsSet.claims["id"].toString()
 
             //get user info
-
             val userData = userService.findUserById(userKey)
             if(userData == null) {
                 filterChain.doFilter(request, response)
             }
             val authorities = ArrayList<GrantedAuthority>()
             roleService.findUserRoles(userData!!.userIndex).forEach() {
-                authorities.add(SimpleGrantedAuthority("ROLE_${it.roleName}"))
+                authorities.add(SimpleGrantedAuthority("ROLE_${it.roleCode}"))
             }
 
 

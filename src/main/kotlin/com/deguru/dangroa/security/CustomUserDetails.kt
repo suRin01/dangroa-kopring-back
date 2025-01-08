@@ -5,13 +5,13 @@ import org.jetbrains.exposed.sql.Column
 import org.springframework.security.core.GrantedAuthority
 import org.springframework.security.core.userdetails.UserDetails
 
-class CustomUserDetails(userInfo: User.UsersTable, authList: MutableCollection<out GrantedAuthority>) : UserDetails {
+class CustomUserDetails(userInfo: User.UserDTO, authList: MutableCollection<out GrantedAuthority>) : UserDetails {
     private val id: String = userInfo.id.toString()
     private val password: String = userInfo.password.toString()
     private val name: String = userInfo.name.toString()
     private val userName: String = userInfo.name.toString()
-    private val userStatus: Column<Long> = userInfo.userStatus
-    private val enabled: Column<Boolean> = userInfo.enabled
+    private val userStatus: Long = userInfo.userStatus
+    private val enabled: Boolean = userInfo.isDeleted
     private val userInfoAuthList: MutableCollection<out GrantedAuthority> = authList
 
     override fun getAuthorities(): MutableCollection<out GrantedAuthority> {
