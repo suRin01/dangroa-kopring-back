@@ -8,6 +8,7 @@ import com.nimbusds.jose.crypto.MACSigner
 import com.nimbusds.jose.crypto.MACVerifier
 import com.nimbusds.jwt.JWTClaimsSet
 import com.nimbusds.jwt.SignedJWT
+import logger
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
 
@@ -19,6 +20,7 @@ class JwtService {
     private lateinit var sharedSecret: ByteArray
     private lateinit var signer: JWSSigner
     private lateinit var verifier: JWSVerifier
+    private val log = logger()
 
     private fun getSharedSecret(): ByteArray{
         if(!this::sharedSecret.isInitialized){
@@ -47,6 +49,7 @@ class JwtService {
     }
 
     fun isValid(jwt: SignedJWT): Boolean {
+        log.debug("jwtKeyString: $jwtKeyString")
         return jwt.verify(getVerifier())
     }
 

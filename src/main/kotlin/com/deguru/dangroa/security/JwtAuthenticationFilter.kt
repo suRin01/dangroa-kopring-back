@@ -19,9 +19,8 @@ import java.util.*
 
 @Component
 class JwtAuthenticationFilter(
-    private val roleService: RoleService,
-    private val userService: UserService,
-    private val jwtUtils: JwtService,) : OncePerRequestFilter()  {
+    private val jwtUtils: JwtService,
+    private val customUserDetailsService: CustomUserDetailService) : OncePerRequestFilter()  {
     private val log = logger()
 
 
@@ -49,7 +48,7 @@ class JwtAuthenticationFilter(
         }
         try {
             val decodedJwt = jwtUtils.decodeJwt(token!!);
-            if(jwtUtils.isValid(decodedJwt)){
+            if(!jwtUtils.isValid(decodedJwt)){
                 throw CommonException(CommonExceptionCode.JWT_ERROR)
             }
 
@@ -57,20 +56,21 @@ class JwtAuthenticationFilter(
             val userKey = claimsSet.claims["id"].toString()
 
             //get user info
-            val userData = userService.findUserById(userKey)
-            if(userData == null) {
-                filterChain.doFilter(request, response)
-            }
-            val authorities = ArrayList<GrantedAuthority>()
-            roleService.findUserRoles(userData!!.userIndex).forEach() {
-                authorities.add(SimpleGrantedAuthority("ROLE_${it.roleCode}"))
-            }
+//            val userData = userService.findUserById(userKey)
+//            if(userData == null) {
+//                filterChain.doFilter(request, response)
+//            }
+//            val authorities = ArrayList<GrantedAuthority>()
+//            roleService.findUserRoles(userData!!.userIndex).forEach() {
+//                authorities.add(SimpleGrantedAuthority("ROLE_${it.roleCode}"))
+//            }
 
-
+            val userDetails = customUserDetailsService.loadUserByUsername(userKey)
+            log.debug("user: {}", userDetails.toString())
 
             //set user credential
             val context: SecurityContext = SecurityContextHolder.createEmptyContext()
-            val authentication = UsernamePasswordAuthenticationToken(userData, null, authorities)
+            val authentication = UsernamePasswordAuthenticationToken(userDetails, null, userDetails.authorities)
             context.authentication = authentication
 
             SecurityContextHolder.setContext(context)

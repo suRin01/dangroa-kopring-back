@@ -4,8 +4,10 @@ import com.deguru.dangroa.dtos.User
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 
 @Service
+@Transactional
 class UserService{
 
     fun getAllUser(): List<User.UserDTO> {
