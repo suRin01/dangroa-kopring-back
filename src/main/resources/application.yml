@@ -11,3 +11,6 @@ spring:
     password: ${postgresql.password}
     hikari:
       maximum-pool-size: 20
+springdoc:
+  swagger-ui:
+    layout: BaseLayout

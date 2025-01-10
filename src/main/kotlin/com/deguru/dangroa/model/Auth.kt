@@ -1,4 +1,4 @@
-package com.deguru.dangroa.dtos
+package com.deguru.dangroa.model
 
 import jakarta.validation.constraints.NotNull
 

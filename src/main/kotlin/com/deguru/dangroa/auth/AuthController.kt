@@ -1,7 +1,7 @@
 package com.deguru.dangroa.auth
 
-import com.deguru.dangroa.dtos.Auth
-import com.deguru.dangroa.dtos.User
+import com.deguru.dangroa.model.Auth
+import com.deguru.dangroa.model.User
 import jakarta.servlet.http.Cookie
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
@@ -19,7 +19,7 @@ class AuthController(
 ) {
     val log = logger()
     @PostMapping("/signup")
-    fun signup(@Valid @RequestBody signupDTO: User.SingUpUserDTO, bindingResult: BindingResult):ResponseEntity<Number> {
+    fun signup(@Valid @RequestBody signupDTO: User.SignUpUserDTO, bindingResult: BindingResult):ResponseEntity<Number> {
         if(bindingResult.hasErrors()){
             log.error("Error during signup: {}", bindingResult.fieldErrors)
             return ResponseEntity(HttpStatus.BAD_REQUEST)

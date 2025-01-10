@@ -53,6 +53,10 @@ dependencies {
 	implementation("org.jetbrains.exposed:exposed-dao:$exposedVersion")
 	implementation("org.jetbrains.exposed:exposed-jdbc:$exposedVersion")
 	implementation("org.jetbrains.exposed:exposed-spring-boot-starter:$exposedVersion")
+
+	// https://mvnrepository.com/artifact/org.springdoc/springdoc-openapi-starter-webmvc-ui
+	implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.1")
+
 }
 
 kotlin {

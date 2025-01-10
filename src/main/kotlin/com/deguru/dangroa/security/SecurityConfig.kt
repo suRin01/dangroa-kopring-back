@@ -36,9 +36,8 @@ class SecurityConfig(
         val codeList = roleData
             .filter { it.inferiorRoleCode !== null }
             .joinToString(" \n ") {
-                "${it.roleCode} > ${it.inferiorRoleCode}"
+                "ROLE_${it.roleCode} > ROLE_${it.inferiorRoleCode}"
             }
-
         return fromHierarchy(codeList)
 
 
@@ -54,12 +53,15 @@ class SecurityConfig(
                 sessionCreationPolicy = SessionCreationPolicy.STATELESS
             }
             authorizeHttpRequests {
+                authorize("/swagger-ui/**", permitAll)
+                authorize("/v3/api-docs/**", permitAll)
                 authorize("/css/**", permitAll)
                 authorize("/auth/login", permitAll)
                 authorize("/auth/signup", permitAll)
                 authorize("/error", permitAll)
-                authorize("/test/userRoleOnly", hasAuthority("ROLE_U"))
-                authorize("/user/**", hasAuthority("ROLE_M"))
+                authorize("/test/**", permitAll)
+                authorize("/user/**", hasAuthority("ROLE_U"))
+                authorize("/manager/**", hasAuthority("ROLE_M"))
                 authorize("/admin/**", hasAuthority("ROLE_A"))
 
             }

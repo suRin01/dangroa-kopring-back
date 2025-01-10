@@ -15,7 +15,7 @@ class CustomUserDetailService(
     val roleService: RoleService): UserDetailsService {
     override fun loadUserByUsername(username: String?): UserDetails {
         val userData = userService.findUserById(username!!)
-        val roleData = userData?.let {
+        val roleData = userData?.let { it ->
             roleService
                 .findUserRoles(it.userIndex)
                 .map{

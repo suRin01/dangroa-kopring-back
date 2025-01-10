@@ -1,9 +1,9 @@
 package com.deguru.dangroa.auth
 
-import com.deguru.dangroa.dtos.Auth
-import com.deguru.dangroa.dtos.HasRole
-import com.deguru.dangroa.dtos.Role
-import com.deguru.dangroa.dtos.User
+import com.deguru.dangroa.model.Auth
+import com.deguru.dangroa.model.HasRole
+import com.deguru.dangroa.model.Role
+import com.deguru.dangroa.model.User
 import com.deguru.dangroa.global.CommonException
 import com.deguru.dangroa.global.CommonExceptionCode
 import com.deguru.dangroa.security.JwtService
@@ -21,7 +21,7 @@ class AuthService(
     val log = logger()
     fun backdoorLogin(loginData: Auth.LoginDTO): Auth.LoginSuccessDTO {
         val lookupUser = User.UsersTable.selectAll()
-            .where(User.UsersTable.id.eq(loginData.id))
+            .where(User.UsersTable.loginId.eq(loginData.id))
             .firstOrNull()?.let{
                 User.UserDTO(it)
             }
@@ -39,7 +39,7 @@ class AuthService(
         return Auth.LoginSuccessDTO(
             accessToken = jwtService.encodeJwt(lookupUser.toAccessClaimSetWithRoles(userRoles)),
             refreshToken = jwtService.encodeJwt(lookupUser.toAccessClaimSet()),
-            id = lookupUser.id
+            id = lookupUser.loginId
         )
     }
 

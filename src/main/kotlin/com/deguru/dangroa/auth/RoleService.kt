@@ -1,11 +1,10 @@
 package com.deguru.dangroa.auth
 
-import com.deguru.dangroa.dtos.HasRole
-import com.deguru.dangroa.dtos.Role
+import com.deguru.dangroa.model.HasRole
+import com.deguru.dangroa.model.Role
 import org.jetbrains.exposed.sql.JoinType
 import org.jetbrains.exposed.sql.alias
 import org.jetbrains.exposed.sql.selectAll
-import org.springframework.security.core.GrantedAuthority
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
@@ -22,10 +21,10 @@ class RoleService {
     }
 
     fun getRoleHierarchy(): List<Role.RoleHierarchy> {
-        val inferiorRoles = Role.RolesTable.selectAll().alias("inferiorRole");
+        val inferiorRoles = Role.RolesTable.selectAll().alias("inferiorRole")
         return Role.RolesTable.join(inferiorRoles,
             JoinType.LEFT,
-            additionalConstraint = {Role.RolesTable.roleIndex eq inferiorRoles[Role.RolesTable.upperRole]})
+            additionalConstraint = {Role.RolesTable.id eq inferiorRoles[Role.RolesTable.upperRole]})
             .selectAll()
             .map{
                 Role.RoleHierarchy(

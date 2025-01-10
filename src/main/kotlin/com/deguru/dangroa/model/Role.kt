@@ -1,12 +1,12 @@
-package com.deguru.dangroa.dtos
+package com.deguru.dangroa.model
 
+import org.jetbrains.exposed.dao.id.IdTable
 import org.jetbrains.exposed.sql.ResultRow
-import org.jetbrains.exposed.sql.Table
 import org.springframework.security.core.GrantedAuthority
 
 class Role {
-    object RolesTable: Table("roles") {
-        val roleIndex = long("roleIndex").uniqueIndex().autoIncrement()
+    object RolesTable: IdTable<Long>("roles") {
+        override val id = long("roleIndex").uniqueIndex().autoIncrement().entityId()
         val roleName = varchar("roleName", 255)
         val roleCode = varchar("roleCode", 255)
         val description = varchar("description", 255)
@@ -24,7 +24,7 @@ class Role {
         val isDeleted: Boolean,
         val upperRole: Long){
         constructor(queryRow: ResultRow) : this(
-            queryRow[RolesTable.roleIndex],
+            queryRow[RolesTable.id].value,
             queryRow[RolesTable.roleName],
             queryRow[RolesTable.roleCode],
             queryRow[RolesTable.description],
