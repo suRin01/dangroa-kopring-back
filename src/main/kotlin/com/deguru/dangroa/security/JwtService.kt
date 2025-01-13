@@ -1,5 +1,6 @@
 package com.deguru.dangroa.security
 
+import com.deguru.dangroa.model.User
 import com.nimbusds.jose.JWSAlgorithm
 import com.nimbusds.jose.JWSHeader
 import com.nimbusds.jose.JWSSigner
@@ -41,6 +42,7 @@ class JwtService {
         }
         return this.verifier
     }
+
     fun encodeJwt(claimsSet: JWTClaimsSet): String {
         val signedJWT = SignedJWT(JWSHeader(JWSAlgorithm.HS256), claimsSet)
         signedJWT.sign(getSigner())

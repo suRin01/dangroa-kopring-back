@@ -12,5 +12,10 @@ spring:
     hikari:
       maximum-pool-size: 20
 springdoc:
+  api-docs:
+    path: /v3/api-docs
+    groups:
+      enabled: true
   swagger-ui:
-    layout: BaseLayout
+    path: /index.html
+    enabled: true
