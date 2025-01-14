@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
+import java.net.URI
 
 @Validated
 @RestController
@@ -24,22 +25,24 @@ class RoleManageController(
     }
 
 
-    @GetMapping("/{userIndex}")
+    @GetMapping("/user/{userIndex}")
     fun getUserRole(@PathVariable userIndex: Long): ResponseEntity<List<Role.RoleDTO>> {
 
         return ResponseEntity.ok(roleService.findUserRoles(userIndex))
     }
 
 
-    @PutMapping("/{userIndex}")
+    @PutMapping("/user/{userIndex}")
     fun updateUserRole(@PathVariable userIndex: Long, @Valid @RequestBody roleDTO: Role.RoleListDTO): ResponseEntity<String> {
         //remove existing roles
         roleService.removeUserRoles(userIndex)
-
+        if(roleDTO.newRoles.isNullOrEmpty()) {
+            return ResponseEntity.created(URI("/admin/role/user/$userIndex")).build()
+        }
         //add new roles
         roleService.addRoles(userIndex, roleDTO.newRoles)
 
-        return ResponseEntity.ok("123")
+        return ResponseEntity.created(URI("/admin/role/user/$userIndex")).build()
 
     }
 }

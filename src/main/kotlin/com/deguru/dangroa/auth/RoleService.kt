@@ -45,13 +45,11 @@ class RoleService {
     }
 
     fun addRoles(userIndex:Long, roleCodeList: ArrayList<String>) {
-        log.debug("roleCodeList = {}", roleCodeList)
         val newRoleIndexes = Role.RolesTable.selectAll()
             .where{
                 Role.RolesTable.roleCode inList roleCodeList
             }
             .map { it[Role.RolesTable.id] }
-        log.debug("newRoleIndexes = {}", newRoleIndexes)
         HasRole.HasRolesTable.batchInsert(newRoleIndexes) { newRoleIndex ->
             this[HasRole.HasRolesTable.roleIndex] = newRoleIndex
             this[HasRole.HasRolesTable.userIndex] = userIndex
@@ -59,7 +57,6 @@ class RoleService {
     }
 
     fun removeUserRoles(index: Long) {
-        log.debug("Removing user role {}", index)
         HasRole.HasRolesTable.deleteWhere {
             userIndex eq index
         }

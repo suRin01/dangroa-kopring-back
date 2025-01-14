@@ -40,7 +40,7 @@ class Role {
     data class RoleListDTO(
         @field:NotNull
         val userIndex: Long,
-        val newRoles: ArrayList<String>,
+        val newRoles: ArrayList<String>?,
     )
 
     data class RoleHierarchy(
