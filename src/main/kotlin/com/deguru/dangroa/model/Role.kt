@@ -1,5 +1,7 @@
 package com.deguru.dangroa.model
 
+import jakarta.validation.constraints.NotEmpty
+import jakarta.validation.constraints.NotNull
 import org.jetbrains.exposed.dao.id.IdTable
 import org.jetbrains.exposed.sql.ResultRow
 import org.springframework.security.core.GrantedAuthority
@@ -34,6 +36,12 @@ class Role {
         )
 
     }
+
+    data class RoleListDTO(
+        @field:NotNull
+        val userIndex: Long,
+        val newRoles: ArrayList<String>,
+    )
 
     data class RoleHierarchy(
         val roleName: String,

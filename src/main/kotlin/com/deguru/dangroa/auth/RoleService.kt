@@ -2,15 +2,16 @@ package com.deguru.dangroa.auth
 
 import com.deguru.dangroa.model.HasRole
 import com.deguru.dangroa.model.Role
-import org.jetbrains.exposed.sql.JoinType
-import org.jetbrains.exposed.sql.alias
-import org.jetbrains.exposed.sql.selectAll
+import logger
+import org.jetbrains.exposed.sql.*
+import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
 @Service
 @Transactional
 class RoleService {
+    private val log = logger()
     fun findUserRoles(userIndex: Long): List<Role.RoleDTO> {
         return (HasRole.HasRolesTable innerJoin Role.RolesTable)
             .selectAll()
@@ -18,6 +19,11 @@ class RoleService {
             .map {
                 Role.RoleDTO(it)
             }
+    }
+    fun getRoleList(): List<Role.RoleDTO> {
+        return Role.RolesTable.selectAll().map {
+            Role.RoleDTO(it)
+        }
     }
 
     fun getRoleHierarchy(): List<Role.RoleHierarchy> {
@@ -36,6 +42,29 @@ class RoleService {
             }
 
 
+    }
+
+    fun addRoles(userIndex:Long, roleCodeList: ArrayList<String>) {
+        log.debug("roleCodeList = {}", roleCodeList)
+        val newRoleIndexes = Role.RolesTable.selectAll()
+            .where{
+                Role.RolesTable.roleCode inList roleCodeList
+            }
+            .map { it[Role.RolesTable.id] }
+        log.debug("newRoleIndexes = {}", newRoleIndexes)
+        HasRole.HasRolesTable.batchInsert(newRoleIndexes) { newRoleIndex ->
+            this[HasRole.HasRolesTable.roleIndex] = newRoleIndex
+            this[HasRole.HasRolesTable.userIndex] = userIndex
+        }
+    }
+
+    fun removeUserRoles(index: Long) {
+        log.debug("Removing user role {}", index)
+        HasRole.HasRolesTable.deleteWhere {
+            userIndex eq index
+        }
+
+        return;
     }
 
 }

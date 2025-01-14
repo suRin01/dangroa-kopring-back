@@ -51,7 +51,6 @@ class JwtService {
     }
 
     fun isValid(jwt: SignedJWT): Boolean {
-        log.debug("jwtKeyString: $jwtKeyString")
         return jwt.verify(getVerifier())
     }
 

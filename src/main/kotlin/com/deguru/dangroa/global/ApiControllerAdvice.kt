@@ -1,5 +1,6 @@
 package com.deguru.dangroa.global
 
+import com.deguru.dangroa.model.CommonResponse
 import com.fasterxml.jackson.databind.exc.MismatchedInputException
 import logger
 import org.springframework.http.HttpStatus
@@ -16,34 +17,34 @@ import org.springframework.web.bind.annotation.RestControllerAdvice
 class ApiControllerAdvice {
     val log = logger()
     @ExceptionHandler(MethodArgumentNotValidException::class)
-    fun handleMethodArgumentNotValidException(exception: MethodArgumentNotValidException): ResponseEntity<Map<String, String>> {
-        log.debug("MethodArgumentNotValidException")
-
+    fun handleMethodArgumentNotValidException(exception: MethodArgumentNotValidException): ResponseEntity<CommonResponse.CommonErrorResponse> {
 
         val errors: MutableMap<String, String> = HashMap()
         exception.bindingResult.allErrors
             .forEach { c -> c.defaultMessage?.let { errors[(c as FieldError).field] = it } }
-        return ResponseEntity.badRequest().body(errors)
+
+        val e =  CommonException(ResultCode.INVALID_PARAM, errors)
+        return ResponseEntity.status(e.exceptionCode.status).body(CommonResponse.CommonErrorResponse(e, e.detailMessages))
     }
 
     @ExceptionHandler(HttpMessageNotReadableException::class)
-    fun handleHttpMessageNotReadableException(exception: HttpMessageNotReadableException){
+    fun handleHttpMessageNotReadableException(exception: HttpMessageNotReadableException):ResponseEntity<CommonResponse.CommonErrorResponse>{
+        val errors: MutableMap<String, String> = HashMap()
         when (val caused = exception.cause) {
             is MethodArgumentNotValidException -> {
-                log.error("MethodArgumentNotValidException")
-                val errors: MutableMap<String, String> = HashMap()
                 caused.bindingResult.allErrors
                     .forEach { c -> c.defaultMessage?.let { errors[(c as FieldError).field] = it } }
-
             }
             is MismatchedInputException -> {
-                log.error("MismatchedInputException")
-                log.error("${caused.path.joinToString() { it.fieldName }} is null")
+                caused.path.forEach{
+                    errors[it.fieldName] = "${it.fieldName}은 null 일 수 없습니다."
+                }
             }
             else -> throw exception
         }
 
-        log.debug("HttpMessageNotReadableException")
+        val e =  CommonException(ResultCode.INVALID_PARAM, errors)
+        return ResponseEntity.status(e.exceptionCode.status).body(CommonResponse.CommonErrorResponse(e, e.detailMessages))
     }
 
 
@@ -55,13 +56,11 @@ class ApiControllerAdvice {
 
 
     @ExceptionHandler(CommonException::class)
-    fun handleCommonException(e: CommonException): ResponseEntity<ErrorResponse> {
-        val errorResponse = ErrorResponse(
-            e.exceptionCode.status.value(),
-            e.exceptionCode.message,
-        )
-        return ResponseEntity(errorResponse, e.exceptionCode.status)
+    fun handleCommonException(e: CommonException): ResponseEntity<CommonResponse.CommonErrorResponse> {
+
+        return ResponseEntity.status(e.exceptionCode.status).body(CommonResponse.CommonErrorResponse(e, e.detailMessages))
     }
+
 
 
 }

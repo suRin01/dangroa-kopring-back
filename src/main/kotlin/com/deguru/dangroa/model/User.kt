@@ -26,18 +26,18 @@ class User {
     }
 
     data class SignUpUserDTO(
-        @field:NotNull
-        @field:NotBlank
+        @field:NotNull(message = "ID는 필수 값 입니다.")
+        @field:NotBlank(message = "ID는 필수 값 입니다.")
         val loginId: String,
-        @field:NotNull
-        @field:NotBlank
+        @field:NotNull(message = "이름은 필수 값 입니다.")
+        @field:NotBlank(message = "이름은 필수 값 입니다.")
         val name: String,
-        @field:NotNull
-        @field:NotBlank
-        @field:Email
+        @field:NotNull(message = "이메일은 필수 값 입니다.")
+        @field:NotBlank(message = "이메일은 필수 값 입니다.")
+        @field:Email(message = "형식에 맞는 이메일을 입력해 주세요")
         val email: String,
-        @field:NotNull
-        @field:NotBlank
+        @field:NotNull(message = "Password는 필수 값 입니다.")
+        @field:NotBlank(message = "Password는 필수 값 입니다.")
         val password: String,
         @field:Nullable
         val description: String? = null,

@@ -5,7 +5,7 @@ import com.deguru.dangroa.model.HasRole
 import com.deguru.dangroa.model.Role
 import com.deguru.dangroa.model.User
 import com.deguru.dangroa.global.CommonException
-import com.deguru.dangroa.global.CommonExceptionCode
+import com.deguru.dangroa.global.ResultCode
 import com.deguru.dangroa.security.JwtService
 import logger
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
@@ -27,7 +27,7 @@ class AuthService(
             }
         if (lookupUser == null) {
             log.debug("user not found or password is wrong")
-            throw CommonException(CommonExceptionCode.WRONG_CREDENTIAL)
+            throw CommonException(ResultCode.WRONG_CREDENTIAL)
         }
         val userRoles = (HasRole.HasRolesTable innerJoin Role.RolesTable)
             .selectAll()
