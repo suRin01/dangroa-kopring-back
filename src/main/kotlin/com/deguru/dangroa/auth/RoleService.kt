@@ -1,7 +1,9 @@
 package com.deguru.dangroa.auth
 
+import com.deguru.dangroa.model.CommonRequest
 import com.deguru.dangroa.model.HasRole
 import com.deguru.dangroa.model.Role
+import com.deguru.dangroa.model.User
 import logger
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
@@ -26,6 +28,20 @@ class RoleService {
         }
     }
 
+    fun pagingRoleList(searchParam: Role.RoleSearchParam, paging: CommonRequest.Paging): Pair<Long, List<Role.RoleDTO>> {
+        val roleData = Role.RolesTable.selectAll()
+        searchParam.roleName?.let {
+            roleData.andWhere { Role.RolesTable.roleName like "%${searchParam.roleName}%" }
+        }
+        val totalCount = roleData.count()
+        roleData.orderBy(User.UsersTable.id, SortOrder.DESC)
+            .offset((paging.pageSize * paging.pageIndex).toLong())
+            .limit(paging.pageSize)
+
+
+        return Pair(totalCount, roleData.map { Role.RoleDTO(it) }.toList())
+    }
+
     fun getRoleHierarchy(): List<Role.RoleHierarchy> {
         val inferiorRoles = Role.RolesTable.selectAll().alias("inferiorRole")
         return Role.RolesTable.join(inferiorRoles,
@@ -44,7 +60,27 @@ class RoleService {
 
     }
 
-    fun addRoles(userIndex:Long, roleCodeList: ArrayList<String>) {
+    fun addRole(newRoleDTO: Role.NewRoleDTO): Long{
+        return Role.RolesTable.insertAndGetId {
+            it[roleCode] = newRoleDTO.roleCode
+            it[roleName] = newRoleDTO.roleName
+            it[description] = newRoleDTO.description
+            it[isEnabled] = newRoleDTO.isEnabled
+            it[isDeleted] = newRoleDTO.isDeleted
+            it[upperRole] = newRoleDTO.upperRole
+        }.value
+    }
+
+    fun deleteRole(roleIndex: Long):Int{
+        return Role.RolesTable.update(where = {
+          Role.RolesTable.id eq roleIndex
+        }, body = {
+            it[isDeleted] = true
+            it[isEnabled] = false
+        })
+    }
+
+    fun addUserRoles(userIndex:Long, roleCodeList: ArrayList<String>) {
         val newRoleIndexes = Role.RolesTable.selectAll()
             .where{
                 Role.RolesTable.roleCode inList roleCodeList

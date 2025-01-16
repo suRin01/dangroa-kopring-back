@@ -46,7 +46,15 @@ class UserManageController(
 
     @PutMapping("/{userIndex}")
     fun updateUser(@PathVariable userIndex: Long, @Valid @RequestBody updateDTO: User.UserUpdateDTO): ResponseEntity<String> {
-        userService.updateUser(updateDTO)
+        val userData = updateDTO.copy(userIndex = userIndex)
+
+        userService.updateUser(userData)
+        return ResponseEntity.noContent().build()
+    }
+
+    @DeleteMapping("/{userIndex}")
+    fun deleteRole(@PathVariable userIndex: Long): ResponseEntity<String> {
+        userService.deleteUser(userIndex)
         return ResponseEntity.noContent().build()
     }
 

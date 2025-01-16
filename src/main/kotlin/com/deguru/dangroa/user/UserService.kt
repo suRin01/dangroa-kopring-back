@@ -108,5 +108,13 @@ class UserService{
         return userData.userIndex
     }
 
+    fun deleteUser(userIndex: Long): Long{
+        User.UsersTable.update({ User.UsersTable.id.eq(User.UsersTable.id) }, 1){
+            it[isDeleted] = true
+        }
+
+        return userIndex
+    }
+
 
 }

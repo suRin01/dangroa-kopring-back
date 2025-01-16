@@ -2,6 +2,7 @@ package com.deguru.dangroa.global
 
 import com.deguru.dangroa.model.CommonResponse
 import com.fasterxml.jackson.databind.exc.MismatchedInputException
+import jakarta.validation.ConstraintViolationException
 import logger
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -58,6 +59,17 @@ class ApiControllerAdvice {
     @ExceptionHandler(CommonException::class)
     fun handleCommonException(e: CommonException): ResponseEntity<CommonResponse.CommonErrorResponse> {
 
+        return ResponseEntity.status(e.exceptionCode.status).body(CommonResponse.CommonErrorResponse(e, e.detailMessages))
+    }
+
+    @ExceptionHandler(ConstraintViolationException::class)
+    fun handleValidationException(exception: ConstraintViolationException): ResponseEntity<CommonResponse.CommonErrorResponse> {
+        val errors: MutableMap<String, String> = HashMap()
+        exception.constraintViolations.forEach {
+            errors[it.constraintDescriptor.validationAppliesTo.name] = it.message
+        }
+
+        val e =  CommonException(ResultCode.INVALID_PARAM, errors)
         return ResponseEntity.status(e.exceptionCode.status).body(CommonResponse.CommonErrorResponse(e, e.detailMessages))
     }
 

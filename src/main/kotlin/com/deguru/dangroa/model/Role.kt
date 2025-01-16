@@ -1,6 +1,5 @@
 package com.deguru.dangroa.model
 
-import jakarta.validation.constraints.NotEmpty
 import jakarta.validation.constraints.NotNull
 import org.jetbrains.exposed.dao.id.IdTable
 import org.jetbrains.exposed.sql.ResultRow
@@ -11,7 +10,7 @@ class Role {
         override val id = long("roleIndex").uniqueIndex().autoIncrement().entityId()
         val roleName = varchar("roleName", 255)
         val roleCode = varchar("roleCode", 255)
-        val description = varchar("description", 255)
+        val description = varchar("description", 255).nullable()
         val isEnabled = bool("isEnabled")
         val isDeleted = bool("isDeleted")
         val upperRole = long("upperRole")
@@ -21,10 +20,10 @@ class Role {
         val roleIndex: Long,
         val roleName: String,
         val roleCode: String,
-        val description: String,
+        val description: String?,
         val isEnabled: Boolean,
         val isDeleted: Boolean,
-        val upperRole: Long){
+        val upperRole: Long?){
         constructor(queryRow: ResultRow) : this(
             queryRow[RolesTable.id].value,
             queryRow[RolesTable.roleName],
@@ -36,6 +35,18 @@ class Role {
         )
 
     }
+
+    data class NewRoleDTO(
+        val roleName: String,
+        val roleCode: String,
+        val description: String?,
+        val isEnabled: Boolean = true,
+        val isDeleted: Boolean = false,
+        val upperRole: Long
+    )
+    data class RoleSearchParam(
+        val roleName: String?
+    )
 
     data class RoleListDTO(
         @field:NotNull
