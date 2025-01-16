@@ -2,8 +2,8 @@ package com.deguru.dangroa.auth
 
 import com.deguru.dangroa.model.CommonRequest
 import com.deguru.dangroa.model.HasRole
-import com.deguru.dangroa.model.Role
-import com.deguru.dangroa.model.User
+import com.deguru.dangroa.model.RoleModel
+import com.deguru.dangroa.model.UserModel
 import logger
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
@@ -14,66 +14,66 @@ import org.springframework.transaction.annotation.Transactional
 @Transactional
 class RoleService {
     private val log = logger()
-    fun findUserRoles(userIndex: Long): List<Role.RoleDTO> {
-        return (HasRole.HasRolesTable innerJoin Role.RolesTable)
+    fun findUserRoles(userIndex: Long): List<RoleModel.Role> {
+        return (HasRole.HasRoles innerJoin RoleModel.Roles)
             .selectAll()
-            .where { HasRole.HasRolesTable.userIndex.eq(userIndex) }
+            .where { HasRole.HasRoles.userIndex.eq(userIndex) }
             .map {
-                Role.RoleDTO(it)
+                RoleModel.Role.wrapRow(it)
             }
     }
-    fun getRoleList(): List<Role.RoleDTO> {
-        return Role.RolesTable.selectAll().map {
-            Role.RoleDTO(it)
+    fun getRoleList(): List<RoleModel.Role> {
+        return RoleModel.Roles.selectAll().map {
+            RoleModel.Role.wrapRow(it)
         }
     }
 
-    fun pagingRoleList(searchParam: Role.RoleSearchParam, paging: CommonRequest.Paging): Pair<Long, List<Role.RoleDTO>> {
-        val roleData = Role.RolesTable.selectAll()
+    fun pagingRoleList(searchParam: RoleModel.RoleSearchParam, paging: CommonRequest.Paging): Pair<Long, List<RoleModel.Role>> {
+        val roleModelData = RoleModel.Roles.selectAll()
         searchParam.roleName?.let {
-            roleData.andWhere { Role.RolesTable.roleName like "%${searchParam.roleName}%" }
+            roleModelData.andWhere { RoleModel.Roles.roleName like "%${searchParam.roleName}%" }
         }
-        val totalCount = roleData.count()
-        roleData.orderBy(User.UsersTable.id, SortOrder.DESC)
+        val totalCount = roleModelData.count()
+        roleModelData.orderBy(UserModel.Users.id, SortOrder.DESC)
             .offset((paging.pageSize * paging.pageIndex).toLong())
             .limit(paging.pageSize)
 
 
-        return Pair(totalCount, roleData.map { Role.RoleDTO(it) }.toList())
+        return Pair(totalCount, roleModelData.map { RoleModel.Role.wrapRow(it) }.toList())
     }
 
-    fun getRoleHierarchy(): List<Role.RoleHierarchy> {
-        val inferiorRoles = Role.RolesTable.selectAll().alias("inferiorRole")
-        return Role.RolesTable.join(inferiorRoles,
+    fun getRoleHierarchy(): List<RoleModel.RoleHierarchy> {
+        val inferiorRoles = RoleModel.Roles.selectAll().alias("inferiorRole")
+        return RoleModel.Roles.join(inferiorRoles,
             JoinType.LEFT,
-            additionalConstraint = {Role.RolesTable.id eq inferiorRoles[Role.RolesTable.upperRole]})
+            additionalConstraint = {RoleModel.Roles.id eq inferiorRoles[RoleModel.Roles.upperRole]})
             .selectAll()
             .map{
-                Role.RoleHierarchy(
-                    it[Role.RolesTable.roleName],
-                    it[Role.RolesTable.roleCode],
-                    it[inferiorRoles[Role.RolesTable.roleName]],
-                    it[inferiorRoles[Role.RolesTable.roleCode]]
+                RoleModel.RoleHierarchy(
+                    it[RoleModel.Roles.roleName],
+                    it[RoleModel.Roles.roleCode],
+                    it[inferiorRoles[RoleModel.Roles.roleName]],
+                    it[inferiorRoles[RoleModel.Roles.roleCode]]
                 )
             }
 
 
     }
 
-    fun addRole(newRoleDTO: Role.NewRoleDTO): Long{
-        return Role.RolesTable.insertAndGetId {
-            it[roleCode] = newRoleDTO.roleCode
-            it[roleName] = newRoleDTO.roleName
-            it[description] = newRoleDTO.description
-            it[isEnabled] = newRoleDTO.isEnabled
-            it[isDeleted] = newRoleDTO.isDeleted
-            it[upperRole] = newRoleDTO.upperRole
+    fun addRole(newRoleModelDTO: RoleModel.NewRoleDTO): Long{
+        return RoleModel.Roles.insertAndGetId {
+            it[roleCode] = newRoleModelDTO.roleCode
+            it[roleName] = newRoleModelDTO.roleName
+            it[description] = newRoleModelDTO.description
+            it[isEnabled] = newRoleModelDTO.isEnabled
+            it[isDeleted] = newRoleModelDTO.isDeleted
+            it[upperRole] = newRoleModelDTO.upperRole
         }.value
     }
 
     fun deleteRole(roleIndex: Long):Int{
-        return Role.RolesTable.update(where = {
-          Role.RolesTable.id eq roleIndex
+        return RoleModel.Roles.update(where = {
+          RoleModel.Roles.id eq roleIndex
         }, body = {
             it[isDeleted] = true
             it[isEnabled] = false
@@ -81,19 +81,19 @@ class RoleService {
     }
 
     fun addUserRoles(userIndex:Long, roleCodeList: ArrayList<String>) {
-        val newRoleIndexes = Role.RolesTable.selectAll()
+        val newRoleModelIndexes = RoleModel.Roles.selectAll()
             .where{
-                Role.RolesTable.roleCode inList roleCodeList
+                RoleModel.Roles.roleCode inList roleCodeList
             }
-            .map { it[Role.RolesTable.id] }
-        HasRole.HasRolesTable.batchInsert(newRoleIndexes) { newRoleIndex ->
-            this[HasRole.HasRolesTable.roleIndex] = newRoleIndex
-            this[HasRole.HasRolesTable.userIndex] = userIndex
+            .map { it[RoleModel.Roles.id] }
+        HasRole.HasRoles.batchInsert(newRoleModelIndexes) { newRoleIndex ->
+            this[HasRole.HasRoles.roleIndex] = newRoleIndex
+            this[HasRole.HasRoles.userIndex] = userIndex
         }
     }
 
     fun removeUserRoles(index: Long) {
-        HasRole.HasRolesTable.deleteWhere {
+        HasRole.HasRoles.deleteWhere {
             userIndex eq index
         }
 

@@ -2,8 +2,8 @@ package com.deguru.dangroa.auth
 
 import com.deguru.dangroa.model.Auth
 import com.deguru.dangroa.model.HasRole
-import com.deguru.dangroa.model.Role
-import com.deguru.dangroa.model.User
+import com.deguru.dangroa.model.RoleModel
+import com.deguru.dangroa.model.UserModel
 import com.deguru.dangroa.global.CommonException
 import com.deguru.dangroa.global.ResultCode
 import com.deguru.dangroa.security.JwtService
@@ -20,20 +20,20 @@ class AuthService(
 ) {
     val log = logger()
     fun backdoorLogin(loginData: Auth.LoginDTO): Auth.LoginSuccessDTO {
-        val lookupUser = User.UsersTable.selectAll()
-            .where(User.UsersTable.loginId.eq(loginData.id))
+        val lookupUser = UserModel.Users.selectAll()
+            .where(UserModel.Users.loginId.eq(loginData.id))
             .firstOrNull()?.let{
-                User.UserDTO(it)
+                UserModel.User.wrapRow(it)
             }
         if (lookupUser == null) {
             log.debug("user not found or password is wrong")
             throw CommonException(ResultCode.WRONG_CREDENTIAL)
         }
-        val userRoles = (HasRole.HasRolesTable innerJoin Role.RolesTable)
+        val userRoles = (HasRole.HasRoles innerJoin RoleModel.Roles)
             .selectAll()
-            .where { HasRole.HasRolesTable.userIndex eq lookupUser.userIndex }
+            .where { HasRole.HasRoles.userIndex eq lookupUser.id }
             .map {
-                Role.RoleDTO(it)
+                RoleModel.Role.wrapRow(it)
             }
 
         return Auth.LoginSuccessDTO(

@@ -2,7 +2,7 @@ package com.deguru.dangroa.admin
 
 import com.deguru.dangroa.model.CommonRequest
 import com.deguru.dangroa.model.CommonResponse
-import com.deguru.dangroa.model.User
+import com.deguru.dangroa.model.UserModel
 import com.deguru.dangroa.user.UserService
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
@@ -22,7 +22,7 @@ class UserManageController(
     @GetMapping()
     fun searchUserList(
         paging: CommonRequest.Paging,
-        @Valid searchParam: User.UserSearchParam): ResponseEntity<CommonResponse.PaginationResponse<List<User.UserDTO>>> {
+        @Valid searchParam: UserModel.UserSearchParam): ResponseEntity<CommonResponse.PaginationResponse<List<UserModel.User>>> {
         val (totalCount, userData) = userService.searchUsers(paging, searchParam)
         return ResponseEntity.ok(CommonResponse.PaginationResponse(paging, totalCount, userData))
     }
@@ -30,7 +30,7 @@ class UserManageController(
 
     @Operation(summary = "Create User")
     @PostMapping
-    fun insertUser(@Valid @RequestBody userData: User.SignUpUserDTO): ResponseEntity<User.UserDTO> {
+    fun insertUser(@Valid @RequestBody userData: UserModel.SignUpUserDTO): ResponseEntity<UserModel.User> {
         val userIndex = userService.insertUser(userData)
 
         return ResponseEntity.created(URI.create("/admin/user/${userIndex}")).build()
@@ -38,14 +38,14 @@ class UserManageController(
 
 
     @GetMapping("/{userIndex}")
-    fun getUser(@PathVariable userIndex: Long): ResponseEntity<User.UserDTO> {
+    fun getUser(@PathVariable userIndex: Long): ResponseEntity<UserModel.User> {
 
 
         return ResponseEntity.ok(userService.findUserByUserIndex(userIndex))
     }
 
     @PutMapping("/{userIndex}")
-    fun updateUser(@PathVariable userIndex: Long, @Valid @RequestBody updateDTO: User.UserUpdateDTO): ResponseEntity<String> {
+    fun updateUser(@PathVariable userIndex: Long, @Valid @RequestBody updateDTO: UserModel.UserUpdateDTO): ResponseEntity<String> {
         val userData = updateDTO.copy(userIndex = userIndex)
 
         userService.updateUser(userData)

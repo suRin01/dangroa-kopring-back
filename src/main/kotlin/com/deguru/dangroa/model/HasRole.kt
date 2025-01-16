@@ -1,24 +1,17 @@
 package com.deguru.dangroa.model
 
-import org.jetbrains.exposed.dao.id.IdTable
-import org.jetbrains.exposed.sql.ResultRow
+import com.deguru.dangroa.global.BaseEntity
+import com.deguru.dangroa.global.BaseLongIdTable
+import org.jetbrains.exposed.dao.id.EntityID
 
 class HasRole {
-    object HasRolesTable: IdTable<Long>("hasRoles") {
-        override val id = long("hasRoleIndex").uniqueIndex().autoIncrement().entityId()
-        val roleIndex = reference("roleIndex", Role.RolesTable.id)
-        val userIndex = reference("userIndex", User.UsersTable.id)
+    object HasRoles: BaseLongIdTable("has_role", "has_role_index"){
+        val roleIndex = reference("role_index", RoleModel.Roles.id)
+        val userIndex = reference("user_index", UserModel.Users.id)
     }
 
-    data class HasRoleDTO(
-        val hasRoleIndex: Long,
-        val roleIndex: Long,
-        val userIndex: Long){
-        constructor(queryRow: ResultRow) : this(
-            queryRow[HasRolesTable.id].value,
-            queryRow[HasRolesTable.roleIndex].value,
-            queryRow[HasRolesTable.userIndex].value
-        )
-
+    class HasRole(id: EntityID<Long>): BaseEntity(id, HasRoles) {
+        val roleIndex by HasRoles.roleIndex
+        val userIndex by HasRoles.userIndex
     }
 }

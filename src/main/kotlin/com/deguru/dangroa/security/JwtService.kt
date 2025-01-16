@@ -1,6 +1,5 @@
 package com.deguru.dangroa.security
 
-import com.deguru.dangroa.model.User
 import com.nimbusds.jose.JWSAlgorithm
 import com.nimbusds.jose.JWSHeader
 import com.nimbusds.jose.JWSSigner

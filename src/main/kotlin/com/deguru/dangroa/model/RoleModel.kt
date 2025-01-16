@@ -1,39 +1,33 @@
 package com.deguru.dangroa.model
 
+import com.deguru.dangroa.global.BaseEntity
+import com.deguru.dangroa.global.BaseEntityClass
+import com.deguru.dangroa.global.BaseLongIdTable
+import com.deguru.dangroa.model.MenuModel.Menu
+import com.deguru.dangroa.model.MenuModel.Menus
 import jakarta.validation.constraints.NotNull
+import org.jetbrains.exposed.dao.id.EntityID
 import org.jetbrains.exposed.dao.id.IdTable
-import org.jetbrains.exposed.sql.ResultRow
 import org.springframework.security.core.GrantedAuthority
 
-class Role {
-    object RolesTable: IdTable<Long>("roles") {
-        override val id = long("roleIndex").uniqueIndex().autoIncrement().entityId()
-        val roleName = varchar("roleName", 255)
-        val roleCode = varchar("roleCode", 255)
+class RoleModel {
+    object Roles: BaseLongIdTable("roles", "role_index"){
+        val roleName = varchar("role_name", 255)
+        val roleCode = varchar("role_code", 255)
         val description = varchar("description", 255).nullable()
-        val isEnabled = bool("isEnabled")
-        val isDeleted = bool("isDeleted")
-        val upperRole = long("upperRole")
+        val isEnabled = bool("is_enabled")
+        val isDeleted = bool("is_deleted")
+        val upperRole = long("upper_role")
     }
 
-    data class RoleDTO(
-        val roleIndex: Long,
-        val roleName: String,
-        val roleCode: String,
-        val description: String?,
-        val isEnabled: Boolean,
-        val isDeleted: Boolean,
-        val upperRole: Long?){
-        constructor(queryRow: ResultRow) : this(
-            queryRow[RolesTable.id].value,
-            queryRow[RolesTable.roleName],
-            queryRow[RolesTable.roleCode],
-            queryRow[RolesTable.description],
-            queryRow[RolesTable.isEnabled],
-            queryRow[RolesTable.isDeleted],
-            queryRow[RolesTable.upperRole],
-        )
-
+    class Role(id: EntityID<Long>): BaseEntity(id, Roles){
+        companion object : BaseEntityClass<Role>(Roles)
+        val roleName by Roles.roleName
+        val roleCode by Roles.roleCode
+        val description by Roles.description
+        val isEnabled by Roles.isEnabled
+        val isDeleted by Roles.isDeleted
+        val upperRole by Roles.upperRole
     }
 
     data class NewRoleDTO(

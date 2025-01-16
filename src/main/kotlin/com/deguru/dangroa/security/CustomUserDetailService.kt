@@ -17,7 +17,7 @@ class CustomUserDetailService(
         val userData = userService.findUserById(username!!)
         val roleData = userData?.let { it ->
             roleService
-                .findUserRoles(it.userIndex)
+                .findUserRoles(it.id.value)
                 .map{
                     GrantedAuthority(function = fun():String{
                         return "ROLE_${it.roleCode}"
