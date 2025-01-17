@@ -13,8 +13,8 @@ import org.springframework.transaction.annotation.Transactional
 class CustomUserDetailService(
     val userService: UserService,
     val roleService: RoleService): UserDetailsService {
-    override fun loadUserByUsername(username: String?): UserDetails {
-        val userData = userService.findUserById(username!!)
+    override fun loadUserByUsername(username: String): UserDetails {
+        val userData = userService.findUserByUserIndex(username.toLong())
         val roleData = userData?.let { it ->
             roleService
                 .findUserRoles(it.userIndex)

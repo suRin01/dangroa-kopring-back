@@ -22,6 +22,7 @@ class JwtAuthenticationFilter(
     private fun tokenResolver (request: HttpServletRequest):String? {
         val tokenPrefix = "Bearer "
         val token = request.getHeader("Authorization")
+        log.debug("Authorization header: $token")
         if (token != null && token.startsWith(tokenPrefix)) {
             return token.substring(tokenPrefix.length)
         }
@@ -47,7 +48,7 @@ class JwtAuthenticationFilter(
             }
 
             val claimsSet = decodedJwt.jwtClaimsSet
-            val userKey = claimsSet.claims["id"].toString()
+            val userKey = claimsSet.claims["idx"].toString()
 
             val userDetails = customUserDetailsService.loadUserByUsername(userKey)
             log.debug("User Details: {}", userDetails)
