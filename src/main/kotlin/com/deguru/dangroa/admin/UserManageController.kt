@@ -22,7 +22,7 @@ class UserManageController(
     @GetMapping()
     fun searchUserList(
         paging: CommonRequest.Paging,
-        @Valid searchParam: UserModel.UserSearchParam): ResponseEntity<CommonResponse.PaginationResponse<List<UserModel.User>>> {
+        @Valid searchParam: UserModel.UserSearchParam): ResponseEntity<CommonResponse.PaginationResponse<List<UserModel.UserDTO>>> {
         val (totalCount, userData) = userService.searchUsers(paging, searchParam)
         return ResponseEntity.ok(CommonResponse.PaginationResponse(paging, totalCount, userData))
     }
@@ -38,7 +38,7 @@ class UserManageController(
 
 
     @GetMapping("/{userIndex}")
-    fun getUser(@PathVariable userIndex: Long): ResponseEntity<UserModel.User> {
+    fun getUser(@PathVariable userIndex: Long): ResponseEntity<UserModel.UserDTO> {
 
 
         return ResponseEntity.ok(userService.findUserByUserIndex(userIndex))

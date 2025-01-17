@@ -39,22 +39,54 @@ class UserModel {
         val isDeleted by Users.isDeleted
         val userStatus by Users.userStatus
 
+        fun entityToDTO(userEntity: User): UserDTO {
+            return UserDTO(userEntity)
+        }
+    }
+
+    data class UserDTO(
+        val userIndex: Long,
+        val loginId: String,
+        val name: String,
+        val password: String,
+        val isDeleted: Boolean,
+        val userStatus: UserStatus,){
+        constructor(userEntity: User) : this(
+            userEntity.id.value,
+            userEntity.loginId,
+            userEntity.name,
+            userEntity.password,
+            userEntity.isDeleted,
+            UserStatus.getByValue(userEntity.userStatus),
+        )
+        constructor(userRow: ResultRow) : this(
+            userRow[Users.id].value,
+            userRow[Users.loginId],
+            userRow[Users.name],
+            userRow[Users.password],
+            userRow[Users.isDeleted],
+            UserStatus.getByValue(userRow[Users.userStatus]),
+        )
+
         fun toAccessClaimSet(): JWTClaimsSet {
             return JWTClaimsSet.Builder()
-                .claim("idx", this.id)
+                .claim("idx", this.userIndex)
                 .claim("id", this.loginId)
                 .expirationTime(Date(Date().time + 8 * 60 * 60 * 1000 )) //8 hour
                 .build()
         }
         fun toAccessClaimSetWithRoles(hasRoles: List<RoleModel.Role>): JWTClaimsSet {
             return JWTClaimsSet.Builder()
-                .claim("idx", this.id)
+                .claim("idx", this.userIndex)
                 .claim("id", this.loginId)
                 .claim("roles", hasRoles.map { it.roleCode }.toTypedArray().joinToString("|"))
                 .expirationTime(Date(Date().time + 2 * 60 * 60 * 1000 )) //2 hour
                 .build()
         }
     }
+
+
+
 
 
     data class SignUpUserDTO(

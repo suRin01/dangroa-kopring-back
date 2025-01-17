@@ -1,5 +1,7 @@
 package com.deguru.dangroa.security
 
+import com.deguru.dangroa.model.RoleModel
+import com.deguru.dangroa.model.UserModel
 import com.nimbusds.jose.JWSAlgorithm
 import com.nimbusds.jose.JWSHeader
 import com.nimbusds.jose.JWSSigner
@@ -11,6 +13,7 @@ import com.nimbusds.jwt.SignedJWT
 import logger
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
+import java.util.*
 
 
 @Component
@@ -40,6 +43,21 @@ class JwtService {
             this.verifier = MACVerifier(getSharedSecret())
         }
         return this.verifier
+    }
+
+
+    fun toAccessClaimSet(userData: UserModel.UserDTO): JWTClaimsSet {
+        return JWTClaimsSet.Builder()
+            .claim("idx", userData.userIndex)
+            .expirationTime(Date(Date().time + 8 * 60 * 60 * 1000 )) //8 hour
+            .build()
+    }
+    fun toAccessClaimSetWithRoles(userData: UserModel.UserDTO, hasRoles: List<RoleModel.RoleDTO>): JWTClaimsSet {
+        return JWTClaimsSet.Builder()
+            .claim("idx", userData.userIndex)
+            .claim("roles", hasRoles.map { it.roleCode }.toTypedArray().joinToString("|"))
+            .expirationTime(Date(Date().time + 2 * 60 * 60 * 1000 )) //2 hour
+            .build()
     }
 
     fun encodeJwt(claimsSet: JWTClaimsSet): String {

@@ -2,7 +2,7 @@ package com.deguru.dangroa.model
 
 import jakarta.validation.constraints.NotNull
 
-class Auth {
+class AuthModel {
     data class LoginDTO(
         @field:NotNull
         val id: String,

@@ -1,7 +1,7 @@
 package com.deguru.dangroa.auth
 
 import com.deguru.dangroa.model.CommonRequest
-import com.deguru.dangroa.model.HasRole
+import com.deguru.dangroa.model.HasRoleModel
 import com.deguru.dangroa.model.RoleModel
 import com.deguru.dangroa.model.UserModel
 import logger
@@ -14,21 +14,21 @@ import org.springframework.transaction.annotation.Transactional
 @Transactional
 class RoleService {
     private val log = logger()
-    fun findUserRoles(userIndex: Long): List<RoleModel.Role> {
-        return (HasRole.HasRoles innerJoin RoleModel.Roles)
+    fun findUserRoles(userIndex: Long): List<RoleModel.RoleDTO> {
+        return (HasRoleModel.HasRoles innerJoin RoleModel.Roles)
             .selectAll()
-            .where { HasRole.HasRoles.userIndex.eq(userIndex) }
+            .where { HasRoleModel.HasRoles.userIndex.eq(userIndex) }
             .map {
-                RoleModel.Role.wrapRow(it)
+                RoleModel.RoleDTO(it)
             }
     }
-    fun getRoleList(): List<RoleModel.Role> {
+    fun getRoleList(): List<RoleModel.RoleDTO> {
         return RoleModel.Roles.selectAll().map {
-            RoleModel.Role.wrapRow(it)
+            RoleModel.RoleDTO(it)
         }
     }
 
-    fun pagingRoleList(searchParam: RoleModel.RoleSearchParam, paging: CommonRequest.Paging): Pair<Long, List<RoleModel.Role>> {
+    fun pagingRoleList(searchParam: RoleModel.RoleSearchParam, paging: CommonRequest.Paging): Pair<Long, List<RoleModel.RoleDTO>> {
         val roleModelData = RoleModel.Roles.selectAll()
         searchParam.roleName?.let {
             roleModelData.andWhere { RoleModel.Roles.roleName like "%${searchParam.roleName}%" }
@@ -39,7 +39,7 @@ class RoleService {
             .limit(paging.pageSize)
 
 
-        return Pair(totalCount, roleModelData.map { RoleModel.Role.wrapRow(it) }.toList())
+        return Pair(totalCount, roleModelData.map { RoleModel.RoleDTO(it) }.toList())
     }
 
     fun getRoleHierarchy(): List<RoleModel.RoleHierarchy> {
@@ -86,14 +86,14 @@ class RoleService {
                 RoleModel.Roles.roleCode inList roleCodeList
             }
             .map { it[RoleModel.Roles.id] }
-        HasRole.HasRoles.batchInsert(newRoleModelIndexes) { newRoleIndex ->
-            this[HasRole.HasRoles.roleIndex] = newRoleIndex
-            this[HasRole.HasRoles.userIndex] = userIndex
+        HasRoleModel.HasRoles.batchInsert(newRoleModelIndexes) { newRoleIndex ->
+            this[HasRoleModel.HasRoles.roleIndex] = newRoleIndex
+            this[HasRoleModel.HasRoles.userIndex] = userIndex
         }
     }
 
     fun removeUserRoles(index: Long) {
-        HasRole.HasRoles.deleteWhere {
+        HasRoleModel.HasRoles.deleteWhere {
             userIndex eq index
         }
 

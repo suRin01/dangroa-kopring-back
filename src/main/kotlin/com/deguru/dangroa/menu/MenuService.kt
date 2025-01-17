@@ -10,8 +10,8 @@ import org.springframework.transaction.annotation.Transactional
 class MenuService {
 
 
-    fun getMenuList(): List<MenuModel.Menu>{
+    fun getMenuList(): List<MenuModel.MenuDTO>{
         return MenuModel.Menus.selectAll()
-            .map { MenuModel.Menu.wrapRow(it) }
+            .map { MenuModel.MenuDTO(it) }
     }
 }

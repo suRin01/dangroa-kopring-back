@@ -1,7 +1,7 @@
 package com.deguru.dangroa.user
 
 import com.deguru.dangroa.model.CommonRequest
-import com.deguru.dangroa.model.HasRole
+import com.deguru.dangroa.model.HasRoleModel
 import com.deguru.dangroa.model.UserModel
 import logger
 import org.jetbrains.exposed.sql.*
@@ -14,23 +14,26 @@ import org.springframework.transaction.annotation.Transactional
 class UserService{
 
     val log = logger()
-    fun getAllUser(): List<UserModel.User> {
+    fun getAllUser(): List<UserModel.UserDTO> {
         return UserModel.Users
             .selectAll()
-            .map { UserModel.User.wrapRow(it) }
+            .map(fun(row): UserModel.UserDTO {
+                return UserModel.UserDTO(row)
+            }).toList();
+
     }
 
 
-    fun findUserById(id: String): UserModel.User? {
+    fun findUserById(id: String): UserModel.UserDTO? {
         return UserModel.Users.selectAll()
             .where(UserModel.Users.loginId.eq(id))
-        .singleOrNull()?.let { UserModel.User.wrapRow(it) }
+        .singleOrNull()?.let { UserModel.UserDTO(it) }
     }
 
-    fun findUserByUserIndex(index: Long): UserModel.User? {
+    fun findUserByUserIndex(index: Long): UserModel.UserDTO? {
         return UserModel.Users.selectAll()
             .where(UserModel.Users.id.eq(index))
-            .singleOrNull()?.let { UserModel.User.wrapRow(it) }
+            .singleOrNull()?.let { UserModel.UserDTO(it) }
     }
 
     fun insertTestUser():Long{
@@ -53,7 +56,7 @@ class UserService{
             it[password] = userData.password
             it[description] = userData.description
         }
-        HasRole.HasRoles.insert {
+        HasRoleModel.HasRoles.insert {
             it[userIndex] = id
             it[roleIndex] = 3
         }
@@ -62,7 +65,7 @@ class UserService{
     }
 
 
-    fun searchUsers(paging: CommonRequest.Paging, searchParam: UserModel.UserSearchParam): Pair<Long, List<UserModel.User>> {
+    fun searchUsers(paging: CommonRequest.Paging, searchParam: UserModel.UserSearchParam): Pair<Long, List<UserModel.UserDTO>> {
         val userData = UserModel.Users.selectAll();
 
         searchParam.loginId?.let {
@@ -90,7 +93,7 @@ class UserService{
             .limit(paging.pageSize)
 
 
-        return Pair(totalCount, userData.map { UserModel.User.wrapRow(it) }.toList())
+        return Pair(totalCount, userData.map { UserModel.UserDTO(it) }.toList())
 
 
 

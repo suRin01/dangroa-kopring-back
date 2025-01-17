@@ -14,7 +14,7 @@ class MenuManageController(
 ) {
 
     @GetMapping()
-    fun list(): List<MenuModel.Menu>{
+    fun list(): List<MenuModel.MenuDTO>{
         return menuService.getMenuList()
     }
 }

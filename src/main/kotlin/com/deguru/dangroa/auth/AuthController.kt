@@ -1,6 +1,6 @@
 package com.deguru.dangroa.auth
 
-import com.deguru.dangroa.model.Auth
+import com.deguru.dangroa.model.AuthModel
 import com.deguru.dangroa.model.UserModel
 import jakarta.servlet.http.Cookie
 import jakarta.servlet.http.HttpServletRequest
@@ -30,7 +30,7 @@ class AuthController(
     }
 
     @PostMapping("/login")
-    fun login(@RequestBody @Valid user: Auth.LoginDTO): Auth.LoginSuccessDTO {
+    fun login(@RequestBody @Valid user: AuthModel.LoginDTO): AuthModel.LoginSuccessDTO {
 
         return authService.backdoorLogin(user)
     }

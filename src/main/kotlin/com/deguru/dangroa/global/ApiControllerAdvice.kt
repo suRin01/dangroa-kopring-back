@@ -12,6 +12,7 @@ import org.springframework.validation.FieldError
 import org.springframework.web.bind.MethodArgumentNotValidException
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.RestControllerAdvice
+import org.springframework.web.servlet.resource.NoResourceFoundException
 
 
 @RestControllerAdvice
@@ -70,6 +71,14 @@ class ApiControllerAdvice {
         }
 
         val e =  CommonException(ResultCode.INVALID_PARAM, errors)
+        return ResponseEntity.status(e.exceptionCode.status).body(CommonResponse.CommonErrorResponse(e, e.detailMessages))
+    }
+
+
+    @ExceptionHandler(NoResourceFoundException::class)
+    fun handleResourceNotFoundException(exception: NoResourceFoundException): ResponseEntity<CommonResponse.CommonErrorResponse> {
+        val errors: MutableMap<String, String> = HashMap()
+        val e =  CommonException(ResultCode.RESOURCE_NOT_FOUND, errors)
         return ResponseEntity.status(e.exceptionCode.status).body(CommonResponse.CommonErrorResponse(e, e.detailMessages))
     }
 

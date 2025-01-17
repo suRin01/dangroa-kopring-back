@@ -34,7 +34,7 @@ class CommonResponse {
     ):BaseResponse(resultCode, message, detailMessages){
         constructor(exception: CommonException, detailMessages: Map<String, String>?) : this(
             exception.exceptionCode.code,
-            exception.message,
+            exception.exceptionCode.message,
             detailMessages)
 
     }

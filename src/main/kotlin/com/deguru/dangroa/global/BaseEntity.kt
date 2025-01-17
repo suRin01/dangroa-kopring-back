@@ -24,11 +24,6 @@ abstract class BaseEntity(id: EntityID<Long>, table: BaseLongIdTable) : LongEnti
     var updatedAt by table.updatedAt
 }
 
-abstract class BaseDTO(){
-    abstract val createdAt: LocalDateTime
-    lateinit var updatedAt: LocalDateTime
-}
-
 abstract class BaseEntityClass<E : BaseEntity>(table: BaseLongIdTable) : LongEntityClass<E>(table) {
     private val log = logger()
     init {

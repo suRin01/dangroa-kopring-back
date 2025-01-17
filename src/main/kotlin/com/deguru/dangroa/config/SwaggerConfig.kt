@@ -32,12 +32,12 @@ class SwaggerConfig {
                 .type(SecurityScheme.Type.HTTP)
                 .scheme("bearer")
                 .bearerFormat("JWT")
-                .description(
-                        """
-                            test admin jwt ::: ${jwtService.encodeJwt(userService.findUserByUserIndex(1)!!.toAccessClaimSet())}<br/>
-                            test manager jwt ::: ${jwtService.encodeJwt(userService.findUserByUserIndex(2)!!.toAccessClaimSet())}<br/>
-                            test user jwt ::: ${jwtService.encodeJwt(userService.findUserByUserIndex(3)!!.toAccessClaimSet())}<br/>
-                        """.trimIndent())
+//                .description(
+//                        """
+//                            test admin jwt ::: ${jwtService.encodeJwt(jwtService.toAccessClaimSet(userService.findUserByUserIndex(1)!!))}<br/>
+//                            test manager jwt ::: ${jwtService.encodeJwt(jwtService.toAccessClaimSet(userService.findUserByUserIndex(2)!!))}<br/>
+//                            test user jwt ::: ${jwtService.encodeJwt(jwtService.toAccessClaimSet(userService.findUserByUserIndex(3)!!))}<br/>
+//                        """.trimIndent())
         )
 
 

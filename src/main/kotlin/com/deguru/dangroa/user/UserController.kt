@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RestController
 @RequestMapping("/user")
 class UserController(val userService: UserService) {
     @GetMapping()
-    fun getUser():  List<UserModel.User> {
+    fun getUser():  List<UserModel.UserDTO> {
 
         return userService.getAllUser()
     }

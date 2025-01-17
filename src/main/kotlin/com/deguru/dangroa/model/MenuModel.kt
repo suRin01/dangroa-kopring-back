@@ -3,9 +3,11 @@ package com.deguru.dangroa.model
 import com.deguru.dangroa.global.BaseEntity
 import com.deguru.dangroa.global.BaseEntityClass
 import com.deguru.dangroa.global.BaseLongIdTable
+import com.deguru.dangroa.model.UserModel.Users
 import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.NotNull
 import org.jetbrains.exposed.dao.id.EntityID
+import org.jetbrains.exposed.sql.ResultRow
 
 
 class MenuModel {
@@ -25,6 +27,35 @@ class MenuModel {
         var isDeleted by Menus.isDeleted
         var upperMenuId by Menus.upperMenuId
     }
+
+    data class MenuDTO(
+        var menuIndex :Long,
+        var name :String,
+        var description: String,
+        var icon: String,
+        var isDeleted: Boolean,
+        var upperMenuId: Long
+    ){
+        constructor(menuEntity: Menu): this(
+            menuEntity.id.value,
+            menuEntity.name,
+            menuEntity.description,
+            menuEntity.icon,
+            menuEntity.isDeleted,
+            menuEntity.upperMenuId,
+        )
+
+        constructor(menuRow: ResultRow): this(
+            menuRow[Menus.id].value,
+            menuRow[Menus.name],
+            menuRow[Menus.description],
+            menuRow[Menus.icon],
+            menuRow[Menus.isDeleted],
+            menuRow[Menus.upperMenuId],
+        )
+
+    }
+
 
 
     data class MenuCreateDTO(

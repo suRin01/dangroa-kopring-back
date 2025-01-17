@@ -16,13 +16,13 @@ class RoleManageController(
 ) {
 
     @GetMapping("")
-    fun searchRole(@RequestParam searchParam: RoleModel.RoleSearchParam, @RequestParam paging: CommonRequest.Paging): ResponseEntity<CommonResponse.PaginationResponse<List<RoleModel.Role>>> {
+    fun searchRole(@RequestParam searchParam: RoleModel.RoleSearchParam, @RequestParam paging: CommonRequest.Paging): ResponseEntity<CommonResponse.PaginationResponse<List<RoleModel.RoleDTO>>> {
         val (totalCount, roleData) = roleService.pagingRoleList(searchParam, paging)
 
         return ResponseEntity.ok(CommonResponse.PaginationResponse(paging, totalCount, roleData))
     }
     @GetMapping("/list")
-    fun getRoles(): ResponseEntity<List<RoleModel.Role>> {
+    fun getRoles(): ResponseEntity<List<RoleModel.RoleDTO>> {
         return ResponseEntity.ok(roleService.getRoleList());
     }
 
@@ -40,7 +40,7 @@ class RoleManageController(
 
 
     @GetMapping("/user/{userIndex}")
-    fun getUserRole(@PathVariable userIndex: Long): ResponseEntity<List<RoleModel.Role>> {
+    fun getUserRole(@PathVariable userIndex: Long): ResponseEntity<List<RoleModel.RoleDTO>> {
 
         return ResponseEntity.ok(roleService.findUserRoles(userIndex))
     }
